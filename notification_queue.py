@@ -32,7 +32,7 @@ class NotificationQueue:
                                     else '_in_use_stop'}))
 
     def push_last_use_property(self, sec):
-        self._push(Notification('property', {'key': 'in_use', 'value': sec}))
+        self._push(Notification('property', {'key': 'last_use', 'value': sec}))
 
     def __len__(self):
         return len(self._deque)

@@ -2,7 +2,7 @@ import pycom
 import pysense
 import _thread
 
-from cloud import CloudNotifier
+from cloud_notifier import CloudNotifier
 from notification_queue import NotificationQueue
 from vibration_sensor import VibrationSensor
 
@@ -14,7 +14,7 @@ print('Pysense HW ver: {}, FW ver: {}'.format(
 
 notification_queue = NotificationQueue()
 cloud = CloudNotifier('UGF4satMBD8atpwawDXK2pXp',
-                      'wmioueSdGLwYbRmcqLds2aFW4Rc8haciqtf6aVEaVidb9eP0mFH6hm9SSjIWFk6WxufEFADHPwkzt316',
+                      'hxiiLp4uaOtmUvM2awOT2cg3wdZi5CAUesiTMppVXKGBjz5ODn9Y48BOdc1gOsn0zrFJe9YIw87FVeLQ',
                       notification_queue)
 v = VibrationSensor(notification_queue)
 

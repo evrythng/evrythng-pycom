@@ -12,7 +12,7 @@ class VibrationSensor:
 
     def __init__(self, queue):
         self._queue = queue
-        self._t_v_release = const(2)
+        self._t_v_release = const(5)
         self._t_v_min = const(5)
         self._t_v_last = 0
         self._v_delta = .04
@@ -36,7 +36,6 @@ class VibrationSensor:
             self._t_v_last = self._chrono.read()
 
             if self._t_v_last > self._t_v_min and not self._in_use:
-                # cloud.schedule_inuse_start()
                 self._queue.push_in_use_property(True)
                 self._queue.push_in_use_action(True)
                 self._in_use = True
@@ -56,8 +55,8 @@ class VibrationSensor:
                     print('DETECTED VIBRATION FOR {} SEC (MIN {} SEC)'
                           .format(t - diff, self._t_v_min))
                     self._queue.push_in_use_property(False)
-                    self._queue.push_in_use_action(False)
                     self._queue.push_last_use_property(t - diff)
+                    self._queue.push_in_use_action(False)
         self._v_last = v_current
 
     def loop_forever(self):

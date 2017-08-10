@@ -21,8 +21,8 @@ class CloudNotifier:
     def _send_actions(self, data):
         print(json.dumps(data))
         for action in data:
-            resp = requests.put('https://api.evrythng.com/thngs/{}/actions/{}'.format(self._thng_id, action['type']),
-                                headers=self._http_headers, json=data)
+            resp = requests.post('https://api.evrythng.com/thngs/{}/actions/{}'.format(self._thng_id, action['type']),
+                                 headers=self._http_headers, json=action)
             print('{}'.format(resp.json()))
 
     def cycle(self):
@@ -40,9 +40,9 @@ class CloudNotifier:
             self._send_props(props)
 
         if actions:
-            self._send_actions(props)
+            self._send_actions(actions)
 
     def loop_forever(self):
         while True:
-            time.sleep(5)
+            time.sleep()
             self.cycle()
