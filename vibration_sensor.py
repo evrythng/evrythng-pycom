@@ -12,21 +12,20 @@ class VibrationSensor:
 
     def __init__(self, queue):
         self._queue = queue
-        self._t_v_release = const(5)
-        self._t_v_min = const(5)
+        self._t_v_release = const(10)
+        self._t_v_min = const(10)
         self._t_v_last = 0
-        self._v_delta = .04
+        self._v_delta = .03
         self._v_detected = False
         self._in_use = False
         self._accel_sensor = LIS2HH12()
         self._chrono = Timer.Chrono()
-        self._v_last = (x, y, z) = self._accel_sensor.acceleration()
         led_green()
 
     def cycle(self):
         v_current = (x, y, z) = self._accel_sensor.acceleration()
-        # print('({0:.2f}, {1:.2f}, {2:.2f})'.format(abs(x), abs(y), abs(z)))
-        diffs = [(i - j) > self._v_delta for i, j in zip(v_current, self._v_last)]
+        print('({0:.2f}, {1:.2f}, {2:.2f})'.format(abs(x), abs(y), abs(z)))
+        diffs = [abs(i - j) > self._v_delta for i, j in zip(v_current, self._v_last)]
 
         if any(diffs):
             if not self._v_detected:
@@ -60,6 +59,10 @@ class VibrationSensor:
         self._v_last = v_current
 
     def loop_forever(self):
+        # to avoid all zeros reading
+        self._accel_sensor.acceleration()
+        time.sleep(1)
+        self._v_last = (x, y, z) = self._accel_sensor.acceleration()
         while True:
             self.cycle()
             time.sleep(.1)
