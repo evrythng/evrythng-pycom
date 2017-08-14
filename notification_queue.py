@@ -25,11 +25,14 @@ class NotificationQueue:
     def push_in_use_property(self, in_use):
         self._push(Notification('property', {'key': 'in_use', 'value': in_use}))
 
+    def push_vbat_property(self, vbat):
+        self._push(Notification('property', {'key': 'battery_voltage', 'value': vbat}))
+
     def push_in_use_action(self, in_use):
         self._push(Notification('action',
-                                {'type': '_in_use_start'
+                                {'type': '_appliance_started'
                                     if in_use
-                                    else '_in_use_stop'}))
+                                    else '_appliance_stopped'}))
 
     def push_last_use_property(self, sec):
         self._push(Notification('property', {'key': 'last_use', 'value': sec}))

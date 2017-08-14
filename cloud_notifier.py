@@ -44,5 +44,5 @@ class CloudNotifier:
 
     def loop_forever(self):
         while True:
-            time.sleep()
+            time.sleep(3)
             self.cycle()

@@ -1,3 +1,4 @@
+import time
 import pycom
 import pysense
 import _thread
@@ -20,4 +21,13 @@ v = VibrationSensor(notification_queue)
 
 _thread.start_new_thread(v.loop_forever, tuple())
 
-cloud.loop_forever()
+vbat_counter = 30 * 10  # every 30 sec
+# cloud.loop_forever()
+while True:
+    cloud.cycle()
+    time.sleep(.1)
+
+    vbat_counter -= 1
+    if not vbat_counter:
+        notification_queue.push_vbat_property(ps.read_battery_voltage())
+        vbat_counter = 30 * 10
