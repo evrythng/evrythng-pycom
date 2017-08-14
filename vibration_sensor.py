@@ -12,10 +12,10 @@ class VibrationSensor:
 
     def __init__(self, queue):
         self._queue = queue
-        self._t_v_release = const(10)
-        self._t_v_min = const(10)
+        self._t_v_release = const(5)
+        self._t_v_min = const(5)
         self._t_v_last = 0
-        self._v_delta = .04
+        self._v_delta = .03
         self._v_detected = False
         self._in_use = False
         self._chrono = Timer.Chrono()
