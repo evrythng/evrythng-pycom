@@ -13,7 +13,7 @@ class VibrationSensor:
     def __init__(self, queue):
         self._queue = queue
         self._t_v_release = const(5)
-        self._t_v_min = const(5)
+        self._t_v_min = const(2)
         self._t_v_last = 0
         self._v_delta = .03
         self._v_detected = False
@@ -30,6 +30,7 @@ class VibrationSensor:
         v_current = (x, y, z) = self._accel_sensor.acceleration()
         # print('({0:.2f}, {1:.2f}, {2:.2f})'.format(abs(x), abs(y), abs(z)))
         diffs = [abs(i - j) > self._v_delta for i, j in zip(v_current, self._v_last)]
+        self._v_last = v_current
 
         if any(diffs):
             if not self._v_detected:
@@ -60,7 +61,6 @@ class VibrationSensor:
                     self._queue.push_in_use_property(False)
                     self._queue.push_last_use_property(t - diff)
                     self._queue.push_in_use_action(False)
-        self._v_last = v_current
 
     def loop_forever(self):
         while True:

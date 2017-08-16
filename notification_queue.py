@@ -23,7 +23,7 @@ class NotificationQueue:
         return r
 
     def push_in_use_property(self, in_use):
-        self._push(Notification('property', {'key': 'in_use', 'value': 1 if in_use else 0}))
+        self._push(Notification('property', {'key': 'in_use', 'value': in_use}))
 
     def push_vbat_property(self, vbat):
         self._push(Notification('property', {'key': 'battery_voltage', 'value': vbat}))
