@@ -14,8 +14,8 @@ print('Pysense HW ver: {}, FW ver: {}'.format(
     ps.read_hw_version(), ps.read_fw_version()))
 
 notification_queue = NotificationQueue()
-cloud = CloudNotifier('UGF4satMBD8atpwawDXK2pXp',
-                      'hxiiLp4uaOtmUvM2awOT2cg3wdZi5CAUesiTMppVXKGBjz5ODn9Y48BOdc1gOsn0zrFJe9YIw87FVeLQ',
+cloud = CloudNotifier('U3GdtMQSegsatpRwwXQCTFmc',
+                      '0YKrPmLEP0kJpMGZNmqeOJ58Ufk4TqvrDiWdRPp7xROs06EEltR2okm3augfPgx35hkAU7nO6TcjhSqo',
                       notification_queue)
 v = VibrationSensor(notification_queue)
 
