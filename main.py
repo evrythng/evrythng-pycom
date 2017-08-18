@@ -3,9 +3,11 @@ import pycom
 import pysense
 import _thread
 
+from micropython import const
 from cloud_notifier import CloudNotifier
 from notification_queue import NotificationQueue
-from vibration_sensor import VibrationSensor
+from accelerometer_sensor import VibrationSensor
+# from adc_sensor import VibrationSensor
 
 pycom.heartbeat(False)
 
@@ -21,7 +23,7 @@ v = VibrationSensor(notification_queue)
 
 _thread.start_new_thread(v.loop_forever, tuple())
 
-vbat_counter = 30 * 10  # every 30 sec
+vbat_counter = vbat_period = const(60 * 10)
 # cloud.loop_forever()
 while True:
     cloud.cycle()
@@ -30,4 +32,4 @@ while True:
     vbat_counter -= 1
     if not vbat_counter:
         notification_queue.push_vbat_property(ps.read_battery_voltage())
-        vbat_counter = 30 * 10
+        vbat_counter = vbat_period
