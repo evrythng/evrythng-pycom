@@ -16,14 +16,22 @@ class CloudNotifier:
         print(json.dumps(data))
         resp = requests.put('https://api.evrythng.com/thngs/{}/properties'.format(self._thng_id),
                             headers=self._http_headers, json=data)
-        print('{}'.format(resp.json()))
+        try:
+            print('{}'.format(resp.json()))
+        except ValueError as e:
+            print(e)
+            pass
 
     def _send_actions(self, data):
         print(json.dumps(data))
         for action in data:
             resp = requests.post('https://api.evrythng.com/thngs/{}/actions/{}'.format(self._thng_id, action['type']),
                                  headers=self._http_headers, json=action)
-            print('{}'.format(resp.json()))
+            try:
+                print('{}'.format(resp.json()))
+            except ValueError as e:
+                print(e)
+                pass
 
     def cycle(self):
         props = []
