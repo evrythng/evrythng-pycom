@@ -3,7 +3,7 @@ config = {
     'known_wifi_networks':
     {
         'rusel.by': 'alina&ksenia',
-        'Ciklum Guest': 'Welcome2Ciklum'
+        'evrythng-embedded': 'evrythng-2016'
     },
 
     'cloud_settings':

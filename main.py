@@ -20,10 +20,11 @@ wifi_networks = config['known_wifi_networks']
 
 for net in nets:
     if net.ssid in wifi_networks:
+        print('WLAN: connecting to {}...'.format(net.ssid))
         wlan.connect(net.ssid, auth=(net.sec, wifi_networks[net.ssid]), timeout=5000)
         while not wlan.isconnected():
             machine.idle()  # save power while waiting
-        print('WLAN connection to {} succeeded!'.format(net.ssid))
+        print('WLAN: connection to {} succeeded!'.format(net.ssid))
         break
 
 
