@@ -12,7 +12,8 @@ def sd_upgrade():
         print('Failed to mount SD card: {}'.format(e))
         return
 
-    for file in os.listdir('/sd'):
-        if file == 'config.py':
-            with open('/sd/' + file, 'rb') as src, open('/flash/' + file, 'wb') as dst:
+    sd_dir = '/sd/'
+    for sub_dir in ['', 'lib/']:
+        for file in os.listdir(sd_dir + sub_dir):
+            with open(sd_dir + sub_dir + file, 'rb') as src, open('/flash/' + sub_dir + file, 'wb') as dst:
                 shutil.copyfileobj(src, dst)
