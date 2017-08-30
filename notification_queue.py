@@ -6,6 +6,9 @@ Notification = namedtuple('Notification', 'type data')
 
 
 class NotificationQueue:
+    VIBRATION_STARTED = 1
+    VIBRATION_STOPPED = 2
+    BATTERY_VOLTAGE = 3
 
     def __init__(self):
         self._deque = deque()
@@ -22,20 +25,14 @@ class NotificationQueue:
                 r.append(self._deque.popright())
         return r
 
-    def push_in_use_property(self, in_use):
-        self._push(Notification('property', {'key': 'in_use', 'value': in_use}))
+    def push_vibration_started(self):
+        self._push(Notification(type=NotificationQueue.VIBRATION_STARTED, data=None))
 
-    def push_vbat_property(self, vbat):
-        self._push(Notification('property', {'key': 'battery_voltage', 'value': vbat}))
+    def push_vibration_stopped(self, duration):
+        self._push(Notification(type=NotificationQueue.VIBRATION_STOPPED, data=int(duration)))
 
-    def push_in_use_action(self, in_use):
-        self._push(Notification('action',
-                                {'type': '_appliance_started'
-                                    if in_use
-                                    else '_appliance_stopped'}))
-
-    def push_last_use_property(self, sec):
-        self._push(Notification('property', {'key': 'last_use', 'value': sec}))
+    def push_battery_voltage(self, voltage):
+        self._push(Notification(type=NotificationQueue.BATTERY_VOLTAGE, data=voltage))
 
     def __len__(self):
         return len(self._deque)

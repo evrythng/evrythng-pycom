@@ -1,11 +1,10 @@
 config = {
-
     'known_wifi_networks':
     {
         'rusel.by': 'alina&ksenia',
-        'evrythng-embedded': 'evrythng-2016'
+        'evrythng-embedded': 'evrythng-2016',
+        'EVRYTHNG': 'oLHCiofimDXN19O'
     },
-
     'cloud_settings':
     {
         'thng_id': 'U3GdtMQSegsatpRwwXQCTFmc',

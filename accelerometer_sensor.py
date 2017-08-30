@@ -15,7 +15,7 @@ class VibrationSensor:
         self._t_v_release = const(5)
         self._t_v_min = const(2)
         self._t_v_last = 0
-        self._v_delta = .03
+        self._v_delta = .04
         self._v_detected = False
         self._in_use = False
         self._chrono = Timer.Chrono()
@@ -40,8 +40,7 @@ class VibrationSensor:
             self._t_v_last = self._chrono.read()
 
             if self._t_v_last > self._t_v_min and not self._in_use:
-                self._queue.push_in_use_property(True)
-                self._queue.push_in_use_action(True)
+                self._queue.push_vibration_started()
                 self._in_use = True
 
         elif self._v_detected:
@@ -58,9 +57,7 @@ class VibrationSensor:
                 if t - diff > self._t_v_min:
                     print('DETECTED VIBRATION FOR {} SEC (MIN {} SEC)'
                           .format(t - diff, self._t_v_min))
-                    self._queue.push_in_use_property(False)
-                    self._queue.push_last_use_property(t - diff)
-                    self._queue.push_in_use_action(False)
+                    self._queue.push_vibration_stopped(t - diff)
 
     def loop_forever(self):
         while True:
