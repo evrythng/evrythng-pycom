@@ -1,28 +1,27 @@
 import time
-import pycom
-import pysense
 import _thread
 
+from machine import Pin
 from micropython import const
 from config import config
 from notification_queue import NotificationQueue
 from accelerometer_sensor import VibrationSensor
-from sigfox_notifier import SigfoxNotifier
-from http_notifier import HttpNotifier
 from dispatcher import CloudDispatcher
-
-pycom.heartbeat(False)
-
-ps = pysense.Pysense()
-print('Pysense HW ver: {}, FW ver: {}'.format(
-    ps.read_hw_version(), ps.read_fw_version()))
 
 cloud_settings = config['cloud_settings']
 
-http = HttpNotifier(cloud_settings['thng_id'], cloud_settings['api_key'])
-# sigfox = SigfoxNotifier()
+wireless_selector = Pin('P20', mode=Pin.IN, pull=Pin.PULL_DOWN)
+if wireless_selector():
+    print('Sigfox notifier selected')
+    from sigfox_notifier import SigfoxNotifier
+    notifier = SigfoxNotifier()
+else:
+    print('HTTP notifier selected')
+    from http_notifier import HttpNotifier
+    notifier = HttpNotifier(cloud_settings['thng_id'], cloud_settings['api_key'])
+
 queue = NotificationQueue()
-dispatcher = CloudDispatcher(queue, [http])
+dispatcher = CloudDispatcher(queue, [notifier])
 
 v = VibrationSensor(queue)
 _thread.start_new_thread(v.loop_forever, tuple())
