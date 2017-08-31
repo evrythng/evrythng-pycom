@@ -1,5 +1,6 @@
 import time
 import _thread
+import pysense
 
 from machine import Pin
 from micropython import const
@@ -7,6 +8,10 @@ from config import config
 from notification_queue import NotificationQueue
 from accelerometer_sensor import VibrationSensor
 from dispatcher import CloudDispatcher
+
+ps = pysense.Pysense()
+print('Pysense HW ver: {}, FW ver: {}'.format(
+    ps.read_hw_version(), ps.read_fw_version()))
 
 cloud_settings = config['cloud_settings']
 
