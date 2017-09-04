@@ -8,7 +8,7 @@ import ubinascii as binascii
 class SigfoxNotifier(BaseNotifier):
 
     def __init__(self):
-        self._sigfox = Sigfox(mode=Sigfox.SIGFOX, rcz=Sigfox.RCZ1)
+        self._sigfox = Sigfox(mode=Sigfox.SIGFOX, rcz=Sigfox.RCZ2)
         self._socket = socket.socket(socket.AF_SIGFOX, socket.SOCK_RAW)
         self._socket.setblocking(True)
         self._socket.setsockopt(socket.SOL_SIGFOX, socket.SO_RX, False)

@@ -7,7 +7,7 @@ config = {
     },
     'cloud_settings':
     {
-        'thng_id': 'U3GdtMQSegsatpRwwXQCTFmc',
+        'thng_id': 'UGn7yGf2MGPEhqwwRgrbTbHd',
         'api_key': '0YKrPmLEP0kJpMGZNmqeOJ58Ufk4TqvrDiWdRPp7xROs06EEltR2okm3augfPgx35hkAU7nO6TcjhSqo'
     }
 }
