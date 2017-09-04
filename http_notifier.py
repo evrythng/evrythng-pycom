@@ -28,6 +28,7 @@ class HttpNotifier(BaseNotifier):
                     machine.idle()  # save power while waiting
                 print('WLAN: connection to {} succeeded!'.format(net.ssid))
                 print('ifconfig: {}'.format(self._wlan.ifconfig()))
+                self._send_props([{'key': 'in_use', 'value': False}])
                 break
 
     def _send_props(self, data):

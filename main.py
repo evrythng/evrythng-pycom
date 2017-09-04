@@ -1,13 +1,15 @@
 import time
 import _thread
 import pysense
-
 from machine import Pin
+from machine import WDT
 from micropython import const
 from config import config
 from notification_queue import NotificationQueue
 from accelerometer_sensor import VibrationSensor
 from dispatcher import CloudDispatcher
+
+wdt = WDT(timeout=20000)  # enable it with a timeout of 20 seconds
 
 ps = pysense.Pysense()
 print('Pysense HW ver: {}, FW ver: {}'.format(
@@ -34,6 +36,7 @@ _thread.start_new_thread(v.loop_forever, tuple())
 vbat_counter = vbat_period = const(60 * 10)
 # dispatcher.loop_forever()
 while True:
+    wdt.feed()
     dispatcher.cycle()
     time.sleep(.1)
 
