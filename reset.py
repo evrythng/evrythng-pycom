@@ -1,6 +1,7 @@
 import machine
 from machine import Timer
 from machine import Pin
+from provision import enter_provisioning_mode
 
 
 class ResetButton:
@@ -21,7 +22,7 @@ class ResetButton:
             if self._pressed >= self._alarm_thres:
                 self._pressed = 0
                 alarm.cancel()
-                print('PROVISIONING MODE ACTIVATED')
+                enter_provisioning_mode()
         else:
             self._pressed = 0
             alarm.cancel()

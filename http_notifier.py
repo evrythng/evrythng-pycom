@@ -14,19 +14,17 @@ class HttpNotifier(BaseNotifier):
 
         self._wlan = WLAN(mode=WLAN.STA)
         nets = self._wlan.scan()
-        wifi_networks = config['known_wifi_networks']
 
         print('WLAN: scanned networks: {}'.format([net.ssid for net in nets]))
 
-        wifi_networks = config['known_wifi_networks']
-
         for net in nets:
-            if net.ssid in wifi_networks:
+            if net.ssid == config['ssid']:
                 print('WLAN: connecting to {}...'.format(net.ssid))
-                self._wlan.connect(net.ssid, auth=(net.sec, wifi_networks[net.ssid]), timeout=5000)
+                self._wlan.connect(config['ssid'], auth=(
+                    net.sec, config['passphrase']), timeout=5000)
                 while not self._wlan.isconnected():
                     machine.idle()  # save power while waiting
-                print('WLAN: connection to {} succeeded!'.format(net.ssid))
+                print('WLAN: connection to {} succeeded!'.format(config['ssid']))
                 print('ifconfig: {}'.format(self._wlan.ifconfig()))
                 self._send_props([{'key': 'in_use', 'value': False}])
                 break
