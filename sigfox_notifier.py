@@ -1,11 +1,10 @@
 from network import Sigfox
-from base_notifier import BaseNotifier
 from notification_queue import NotificationQueue
 import socket
 import ubinascii as binascii
 
 
-class SigfoxNotifier(BaseNotifier):
+class SigfoxNotifier():
 
     def __init__(self):
         self._sigfox = Sigfox(mode=Sigfox.SIGFOX, rcz=Sigfox.RCZ2)

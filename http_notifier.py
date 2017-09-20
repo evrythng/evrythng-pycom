@@ -1,32 +1,37 @@
 import machine
 import urequests as requests
 import ujson as json
+import provision
 from network import WLAN
 from config import config
 from notification_queue import NotificationQueue
-from base_notifier import BaseNotifier
+from machine import Timer
 
 
-class HttpNotifier(BaseNotifier):
+class HttpNotifier():
+    def connection_timer_handler(self, alarm):
+        if not self._wlan.isconnected():
+            print('failed to connect to {}, entering provisioning mode...'.format(config['ssid']))
+            provision.enter_provisioning_mode()
+
     def __init__(self, thng_id, api_key):
         self._thng_id = thng_id
         self._http_headers = {'Content-Type': 'application/json', 'Authorization': api_key}
 
         self._wlan = WLAN(mode=WLAN.STA)
         nets = self._wlan.scan()
-        wifi_networks = config['known_wifi_networks']
 
         print('WLAN: scanned networks: {}'.format([net.ssid for net in nets]))
 
-        wifi_networks = config['known_wifi_networks']
-
         for net in nets:
-            if net.ssid in wifi_networks:
+            if net.ssid == config['ssid']:
                 print('WLAN: connecting to {}...'.format(net.ssid))
-                self._wlan.connect(net.ssid, auth=(net.sec, wifi_networks[net.ssid]), timeout=5000)
+                self._wlan.connect(config['ssid'], auth=(
+                    net.sec, config['passphrase']), timeout=5000)
+                Timer.Alarm(self.connection_timer_handler, 10, periodic=False)
                 while not self._wlan.isconnected():
                     machine.idle()  # save power while waiting
-                print('WLAN: connection to {} succeeded!'.format(net.ssid))
+                print('WLAN: connection to {} succeeded!'.format(config['ssid']))
                 print('ifconfig: {}'.format(self._wlan.ifconfig()))
                 self._send_props([{'key': 'in_use', 'value': False}])
                 break

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Setup</title>
+
+</head>
+<style>
+    .pure-form input[type=text], .pure-form input[type=number], .pure-form input[type=search], .pure-form input[type=tel], .pure-form input[type=color], .pure-form input[type=password], .pure-form input[type=email], .pure-form input[type=url], .pure-form input[type=date], .pure-form input[type=month], .pure-form input[type=time], .pure-form input[type=datetime], .pure-form input[type=datetime-local], .pure-form input[type=week], .pure-form select, .pure-form textarea {
+        padding: .5em .6em;
+        display: inline-block;
+        border: 1px solid #ccc;
+        box-shadow: inset 0 1px 3px #ddd;
+        border-radius: 4px;
+        vertical-align: middle;
+        box-sizing: border-box
+    }
+
+    .pure-form input:not([type]) {
+        padding: .5em .6em;
+        display: inline-block;
+        border: 1px solid #ccc;
+        box-shadow: inset 0 1px 3px #ddd;
+        border-radius: 4px;
+        box-sizing: border-box
+    }
+
+    .pure-form input[type=color] {
+        padding: .2em .5em
+    }
+
+    .pure-form input:not([type]):focus, .pure-form input[type=text]:focus, .pure-form input[type=number]:focus, .pure-form input[type=search]:focus, .pure-form input[type=tel]:focus, .pure-form input[type=color]:focus, .pure-form input[type=password]:focus, .pure-form input[type=email]:focus, .pure-form input[type=url]:focus, .pure-form input[type=date]:focus, .pure-form input[type=month]:focus, .pure-form input[type=time]:focus, .pure-form input[type=datetime]:focus, .pure-form input[type=datetime-local]:focus, .pure-form input[type=week]:focus, .pure-form select:focus, .pure-form textarea:focus {
+        outline: 0;
+        border-color: #129FEA
+    }
+
+    .pure-form input[type=file]:focus, .pure-form input[type=radio]:focus, .pure-form input[type=checkbox]:focus {
+        outline: #129FEA auto 1px
+    }
+
+    .pure-form .pure-checkbox, .pure-form .pure-radio {
+        margin: .5em 0;
+        display: block
+    }
+
+    .pure-form input:not([type])[disabled], .pure-form input[type=text][disabled], .pure-form input[type=number][disabled], .pure-form input[type=search][disabled], .pure-form input[type=tel][disabled], .pure-form input[type=color][disabled], .pure-form input[type=password][disabled], .pure-form input[type=email][disabled], .pure-form input[type=url][disabled], .pure-form input[type=date][disabled], .pure-form input[type=month][disabled], .pure-form input[type=time][disabled], .pure-form input[type=datetime][disabled], .pure-form input[type=datetime-local][disabled], .pure-form input[type=week][disabled], .pure-form select[disabled], .pure-form textarea[disabled] {
+        cursor: not-allowed;
+        background-color: #eaeded;
+        color: #cad2d3
+    }
+
+    .pure-form input[readonly], .pure-form select[readonly], .pure-form textarea[readonly] {
+        background-color: #eee;
+        color: #777;
+        border-color: #ccc
+    }
+
+    .pure-form input:focus:invalid, .pure-form select:focus:invalid, .pure-form textarea:focus:invalid {
+        color: #b94a48;
+        border-color: #e9322d
+    }
+
+    .pure-form input[type=file]:focus:invalid:focus, .pure-form input[type=radio]:focus:invalid:focus, .pure-form input[type=checkbox]:focus:invalid:focus {
+        outline-color: #e9322d
+    }
+
+    .pure-form select {
+        height: 2.25em;
+        border: 1px solid #ccc;
+        background-color: #fff
+    }
+
+    .pure-form select[multiple] {
+        height: auto
+    }
+
+    .pure-form label {
+        margin: .5em 0 .2em
+    }
+
+    .pure-form fieldset {
+        margin: 0;
+        padding: .35em 0 .75em;
+        border: 0
+    }
+
+    .pure-form legend {
+        display: block;
+        width: 100%;
+        padding: .3em 0;
+        margin-bottom: .3em;
+        color: #333;
+        border-bottom: 1px solid #e5e5e5
+    }
+
+    .pure-form .pure-input-rounded, .pure-form input.pure-input-rounded {
+        border-radius: 2em;
+        padding: .5em 1em
+    }
+
+    .pure-form .pure-group fieldset {
+        margin-bottom: 10px
+    }
+
+    .pure-form .pure-group input, .pure-form .pure-group textarea {
+        display: block;
+        padding: 10px;
+        margin: 0 0 -1px;
+        border-radius: 0;
+        position: relative;
+        top: -1px
+    }
+
+    .pure-form .pure-group input:focus, .pure-form .pure-group textarea:focus {
+        z-index: 3
+    }
+
+    .pure-form .pure-group input:first-child, .pure-form .pure-group textarea:first-child {
+        top: 1px;
+        border-radius: 4px 4px 0 0;
+        margin: 0
+    }
+
+    .pure-form .pure-group input:first-child:last-child, .pure-form .pure-group textarea:first-child:last-child {
+        top: 1px;
+        border-radius: 4px;
+        margin: 0
+    }
+
+    .pure-form .pure-group input:last-child, .pure-form .pure-group textarea:last-child {
+        top: -2px;
+        border-radius: 0 0 4px 4px;
+        margin: 0
+    }
+
+    .pure-form .pure-group button {
+        margin: .35em 0
+    }
+
+    @media only screen and (max-width: 480px) {
+        .pure-form button[type=submit] {
+            margin: .7em 0 0
+        }
+
+        .pure-form input:not([type]), .pure-form input[type=text], .pure-form input[type=number], .pure-form input[type=search], .pure-form input[type=tel], .pure-form input[type=color], .pure-form input[type=password], .pure-form input[type=email], .pure-form input[type=url], .pure-form input[type=date], .pure-form input[type=month], .pure-form input[type=time], .pure-form input[type=datetime], .pure-form input[type=datetime-local], .pure-form input[type=week], .pure-form label {
+            margin-bottom: .3em;
+            display: block
+        }
+
+        .pure-group input:not([type]), .pure-group input[type=text], .pure-group input[type=number], .pure-group input[type=search], .pure-group input[type=tel], .pure-group input[type=color], .pure-group input[type=password], .pure-group input[type=email], .pure-group input[type=url], .pure-group input[type=date], .pure-group input[type=month], .pure-group input[type=time], .pure-group input[type=datetime], .pure-group input[type=datetime-local], .pure-group input[type=week] {
+            margin-bottom: 0
+        }
+
+        .pure-form-aligned .pure-control-group label {
+            margin-bottom: .3em;
+            text-align: left;
+            display: block;
+            width: 100%
+        }
+
+        .pure-form-aligned .pure-controls {
+            margin: 1.5em 0 0
+        }
+
+        .pure-form .pure-help-inline, .pure-form-message, .pure-form-message-inline {
+            display: block;
+            font-size: .75em;
+            padding: .2em 0 .8em
+        }
+    }
+
+    .pure-form input[type=text], .pure-form input[type=number], .pure-form input[type=search], .pure-form input[type=tel], .pure-form input[type=color], .pure-form input[type=password], .pure-form input[type=email], .pure-form input[type=url], .pure-form input[type=date], .pure-form input[type=month], .pure-form input[type=time], .pure-form input[type=datetime], .pure-form input[type=datetime-local], .pure-form input[type=week], .pure-form select, .pure-form textarea {
+        padding: .5em .6em;
+        display: inline-block;
+        border: 1px solid #ccc;
+        box-shadow: inset 0 1px 3px #ddd;
+        border-radius: 4px;
+        vertical-align: middle;
+        box-sizing: border-box
+    }
+
+    .pure-form input:not([type]) {
+        padding: .5em .6em;
+        display: inline-block;
+        border: 1px solid #ccc;
+        box-shadow: inset 0 1px 3px #ddd;
+        border-radius: 4px;
+        box-sizing: border-box
+    }
+
+    .pure-form input[type=color] {
+        padding: .2em .5em
+    }
+
+    .pure-form input:not([type]):focus, .pure-form input[type=text]:focus, .pure-form input[type=number]:focus, .pure-form input[type=search]:focus, .pure-form input[type=tel]:focus, .pure-form input[type=color]:focus, .pure-form input[type=password]:focus, .pure-form input[type=email]:focus, .pure-form input[type=url]:focus, .pure-form input[type=date]:focus, .pure-form input[type=month]:focus, .pure-form input[type=time]:focus, .pure-form input[type=datetime]:focus, .pure-form input[type=datetime-local]:focus, .pure-form input[type=week]:focus, .pure-form select:focus, .pure-form textarea:focus {
+        outline: 0;
+        border-color: #129FEA
+    }
+
+    .pure-form input[type=file]:focus, .pure-form input[type=radio]:focus, .pure-form input[type=checkbox]:focus {
+        outline: #129FEA auto 1px
+    }
+
+    .pure-form .pure-checkbox, .pure-form .pure-radio {
+        margin: .5em 0;
+        display: block
+    }
+
+    .pure-form input:not([type])[disabled], .pure-form input[type=text][disabled], .pure-form input[type=number][disabled], .pure-form input[type=search][disabled], .pure-form input[type=tel][disabled], .pure-form input[type=color][disabled], .pure-form input[type=password][disabled], .pure-form input[type=email][disabled], .pure-form input[type=url][disabled], .pure-form input[type=date][disabled], .pure-form input[type=month][disabled], .pure-form input[type=time][disabled], .pure-form input[type=datetime][disabled], .pure-form input[type=datetime-local][disabled], .pure-form input[type=week][disabled], .pure-form select[disabled], .pure-form textarea[disabled] {
+        cursor: not-allowed;
+        background-color: #eaeded;
+        color: #cad2d3
+    }
+
+    .pure-form input[readonly], .pure-form select[readonly], .pure-form textarea[readonly] {
+        background-color: #eee;
+        color: #777;
+        border-color: #ccc
+    }
+
+    .pure-form input:focus:invalid, .pure-form select:focus:invalid, .pure-form textarea:focus:invalid {
+        color: #b94a48;
+        border-color: #e9322d
+    }
+
+    .pure-form input[type=file]:focus:invalid:focus, .pure-form input[type=radio]:focus:invalid:focus, .pure-form input[type=checkbox]:focus:invalid:focus {
+        outline-color: #e9322d
+    }
+
+    .pure-form select {
+        height: 2.25em;
+        border: 1px solid #ccc;
+        background-color: #fff
+    }
+
+    .pure-form select[multiple] {
+        height: auto
+    }
+
+    .pure-form label {
+        margin: .5em 0 .2em
+    }
+
+    .pure-form fieldset {
+        margin: 0;
+        padding: .35em 0 .75em;
+        border: 0
+    }
+
+    .pure-form legend {
+        display: block;
+        width: 100%;
+        padding: .3em 0;
+        margin-bottom: .3em;
+        color: #333;
+        border-bottom: 1px solid #e5e5e5
+    }
+
+    .pure-form .pure-input-rounded, .pure-form input.pure-input-rounded {
+        border-radius: 2em;
+        padding: .5em 1em
+    }
+
+    .pure-form .pure-group fieldset {
+        margin-bottom: 10px
+    }
+
+    .pure-form .pure-group input, .pure-form .pure-group textarea {
+        display: block;
+        padding: 10px;
+        margin: 0 0 -1px;
+        border-radius: 0;
+        position: relative;
+        top: -1px
+    }
+
+    .pure-form .pure-group input:focus, .pure-form .pure-group textarea:focus {
+        z-index: 3
+    }
+
+    .pure-form .pure-group input:first-child, .pure-form .pure-group textarea:first-child {
+        top: 1px;
+        border-radius: 4px 4px 0 0;
+        margin: 0
+    }
+
+    .pure-form .pure-group input:first-child:last-child, .pure-form .pure-group textarea:first-child:last-child {
+        top: 1px;
+        border-radius: 4px;
+        margin: 0
+    }
+
+    .pure-form .pure-group input:last-child, .pure-form .pure-group textarea:last-child {
+        top: -2px;
+        border-radius: 0 0 4px 4px;
+        margin: 0
+    }
+
+    .pure-form .pure-group button {
+        margin: .35em 0
+    }
+
+    .pure-form .pure-help-inline, .pure-form-message-inline {
+        display: inline-block;
+        padding-left: .3em;
+        color: #666;
+        vertical-align: middle;
+        font-size: .875em
+    }
+
+    .pure-form-message {
+        display: block;
+        color: #666;
+        font-size: .875em
+    }
+
+    .pure-button {
+        display: inline-block;
+        zoom: 1;
+        line-height: normal;
+        white-space: nowrap;
+        vertical-align: middle;
+        text-align: center;
+        cursor: pointer;
+        -webkit-user-drag: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        box-sizing: border-box
+    }
+
+    .pure-button::-moz-focus-inner {
+        padding: 0;
+        border: 0
+    }
+
+    .pure-button-group {
+        letter-spacing: -.31em;
+        text-rendering: optimizespeed
+    }
+
+    .opera-only :-o-prefocus, .pure-button-group {
+        word-spacing: -.43em
+    }
+
+    .pure-button {
+        font-family: inherit;
+        font-size: 100%;
+        padding: .5em 1em;
+        color: #444;
+        color: rgba(0, 0, 0, .8);
+        border: 1px solid #999;
+        border: transparent;
+        background-color: #E6E6E6;
+        text-decoration: none;
+        border-radius: 2px
+    }
+
+    .pure-button-hover, .pure-button:focus, .pure-button:hover {
+        filter: alpha(opacity=90);
+        background-image: -webkit-linear-gradient(transparent, rgba(0, 0, 0, .05) 40%, rgba(0, 0, 0, .1));
+        background-image: linear-gradient(transparent, rgba(0, 0, 0, .05) 40%, rgba(0, 0, 0, .1))
+    }
+
+    .pure-button:focus {
+        outline: 0
+    }
+
+    .pure-button-active, .pure-button:active {
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, .15) inset, 0 0 6px rgba(0, 0, 0, .2) inset;
+        border-color: #000 \9
+    }
+
+    .pure-button-disabled, .pure-button-disabled:active, .pure-button-disabled:focus, .pure-button-disabled:hover, .pure-button[disabled] {
+        border: none;
+        background-image: none;
+        filter: alpha(opacity=40);
+        opacity: .4;
+        cursor: not-allowed;
+        box-shadow: none;
+        pointer-events: none
+    }
+
+    .pure-button-hidden {
+        display: none
+    }
+
+    .pure-button-primary, .pure-button-selected, a.pure-button-primary, a.pure-button-selected {
+        background-color: #0078e7;
+        color: #fff
+    }
+
+    .pure-button-group .pure-button {
+        letter-spacing: normal;
+        word-spacing: normal;
+        vertical-align: top;
+        text-rendering: auto;
+        margin: 0;
+        border-radius: 0;
+        border-right: 1px solid #111;
+        border-right: 1px solid rgba(0, 0, 0, .2)
+    }
+
+    .pure-button-group .pure-button:first-child {
+        border-top-left-radius: 2px;
+        border-bottom-left-radius: 2px
+    }
+
+    .pure-button-group .pure-button:last-child {
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
+        border-right: none
+    }
+
+    img, legend {
+        border: 0
+    }
+
+    legend, td, th {
+        padding: 0
+    }
+
+    html {
+        font-family: sans-serif;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%
+    }
+
+    body {
+        margin: 0
+    }
+
+    article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
+        display: block
+    }
+
+    [hidden], template {
+        display: none
+    }
+
+    a {
+        background-color: transparent
+    }
+
+    a:active, a:hover {
+        outline: 0
+    }
+
+    abbr[title] {
+        border-bottom: 1px dotted
+    }
+
+    b, optgroup, strong {
+        font-weight: 700
+    }
+
+    dfn {
+        font-style: italic
+    }
+
+    h1 {
+        font-size: 2em;
+        margin: .67em 0
+    }
+
+    mark {
+        background: #ff0;
+        color: #000
+    }
+
+    small {
+        font-size: 80%
+    }
+
+    hr {
+        box-sizing: content-box;
+        height: 0
+    }
+
+    pre, textarea {
+        overflow: auto
+    }
+
+    code, kbd, pre, samp {
+        font-family: monospace, monospace;
+        font-size: 1em
+    }
+
+    button, input, optgroup, select, textarea {
+        color: inherit;
+        font: inherit;
+        margin: 0
+    }
+
+    button {
+        overflow: visible
+    }
+
+    button, select {
+        text-transform: none
+    }
+
+    button, html input[type=button], input[type=reset], input[type=submit] {
+        -webkit-appearance: button;
+        cursor: pointer
+    }
+
+    button[disabled], html input[disabled] {
+        cursor: default
+    }
+
+    input {
+        line-height: normal
+    }
+
+    input[type=checkbox], input[type=radio] {
+        box-sizing: border-box;
+        padding: 0
+    }
+
+    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button {
+        height: auto
+    }
+
+    fieldset {
+        border: 1px solid silver;
+        margin: 0 2px;
+        padding: .35em .625em .75em
+    }
+
+    .hidden, [hidden] {
+        display: none !important
+    }
+
+    .pure-form .pure-input-rounded, .pure-form input.pure-input-rounded {
+        border-radius: 2em;
+        padding: .5em 1em
+    }
+
+    .pure-g {
+        letter-spacing: -0.31em; /* Webkit: collapse white-space between units */
+        *letter-spacing: normal; /* reset IE < 8 */
+        *word-spacing: -0.43em; /* IE < 8: collapse white-space between units */
+        text-rendering: optimizespeed; /* Webkit: fixes text-rendering: optimizeLegibility */
+        font-family: FreeSans, Arimo, "Droid Sans", Helvetica, Arial, sans-serif;
+
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-flex-flow: row wrap;
+        -ms-flex-flow: row wrap;
+        flex-flow: row wrap;
+
+        /* Prevents distributing space between rows */
+        -webkit-align-content: flex-start;
+        -ms-flex-line-pack: start;
+        align-content: flex-start;
+    }
+
+    /* IE10 display: -ms-flexbox (and display: flex in IE 11) does not work inside a table; fall back to block and rely on font hack */
+    @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+        table .pure-g {
+            display: block;
+        }
+    }
+
+    /* Opera as of 12 on Windows needs word-spacing.
+       The ".opera-only" selector is used to prevent actual prefocus styling
+       and is not required in markup.
+    */
+    .opera-only :-o-prefocus,
+    .pure-g {
+        word-spacing: -0.43em;
+    }
+
+    .pure-u {
+        display: inline-block;
+        *display: inline; /* IE < 8: fake inline-block */
+        zoom: 1;
+        letter-spacing: normal;
+        word-spacing: normal;
+        vertical-align: top;
+        text-rendering: auto;
+    }
+
+    /*
+    Resets the font family back to the OS/browser's default sans-serif font,
+    this the same font stack that Normalize.css sets for the `body`.
+    */
+    .pure-g [class *= "pure-u"] {
+        font-family: sans-serif;
+    }
+
+    .menu-item {
+        font-size: x-large;
+        display: inline-block;
+        *display: inline;
+        zoom: 1;
+        letter-spacing: normal;
+        word-spacing: normal;
+        vertical-align: top;
+        text-rendering: auto;
+        width: 80%;
+        *width: 79.9690%
+
+    }
+
+</style>
+
+<body>
+
+<h2>Setup</h2>
+
+<form action="" enctype="multipart/form-data" method="post" name="provisioningForm" id="provisioning" class="pure-form">
+    <div class="pure-group">
+        <select id="ssid" name="ssid" required class="menu-item"></select>
+        <input id="passphrase" required name="passphrase" class="menu-item" type="password"
+               placeholder="WiFi Passphrase" value="SSID"/>
+        <input id="thng" name="thng_id" required pattern="([A-z0-9]{24})" class="menu-item" placeholder="Thng Id"
+               value=""/>
+        <input id="apikey" name="api_key" required pattern="([A-z0-9]{80})" class="menu-item" placeholder="API Key"
+               value=""/>
+        <button id="provbutton" class="pure-button pure-button-primary menu-item">submit</button>
+    </div>
+</form>
+
+</body>
+<script>
+    window.addEventListener('load', () => {
+        fetch(new Request('/scan')).then(resp => {
+            return resp.json();
+        }).then(ssids => {
+            let ssidList = document.getElementById('ssid');
+            ssids.forEach(ssid => {
+                let opt = document.createElement('option');
+                opt.label = ssid;
+                opt.value = ssid;
+                opt.innerHTML = ssid;
+                ssidList.add(opt);
+            });
+        }).catch(err => {
+            alert(err)
+        });
+    });
+
+    const formElement = document.querySelector('form');
+    formElement.addEventListener('submit', e => {
+        e.preventDefault();
+        let data = {};
+        for (let [k,v] of new FormData(formElement))
+            data[k]=v;
+        fetch(new Request('/provision', {
+            method: 'POST',
+            headers: new Headers({'Content-Type': 'application/json'}),
+            body: JSON.stringify(data)
+        })).then(resp => {
+            if (resp.status >=200 && resp.status <300)
+                alert('Device Configured');
+            else
+                throw 'Could not configure device';
+        }).catch(err=>{
+            alert(err);
+        });
+    }, false);
+</script>
+</html>

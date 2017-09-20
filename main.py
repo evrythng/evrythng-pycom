@@ -9,13 +9,9 @@ from notification_queue import NotificationQueue
 from accelerometer_sensor import VibrationSensor
 from dispatcher import CloudDispatcher
 
-wdt = WDT(timeout=20000)  # enable it with a timeout of 20 seconds
-
 ps = pysense.Pysense()
 print('Pysense HW ver: {}, FW ver: {}'.format(
     ps.read_hw_version(), ps.read_fw_version()))
-
-cloud_settings = config['cloud_settings']
 
 wireless_selector = Pin('P20', mode=Pin.IN, pull=Pin.PULL_DOWN)
 if wireless_selector():
@@ -25,7 +21,9 @@ if wireless_selector():
 else:
     print('HTTP notifier selected')
     from http_notifier import HttpNotifier
-    notifier = HttpNotifier(cloud_settings['thng_id'], cloud_settings['api_key'])
+    notifier = HttpNotifier(config['thng_id'], config['api_key'])
+
+wdt = WDT(timeout=20000)  # enable it with a timeout of 20 seconds
 
 queue = NotificationQueue()
 dispatcher = CloudDispatcher(queue, [notifier])
@@ -34,7 +32,6 @@ v = VibrationSensor(queue)
 _thread.start_new_thread(v.loop_forever, tuple())
 
 vbat_counter = vbat_period = const(60 * 10)
-# dispatcher.loop_forever()
 while True:
     wdt.feed()
     dispatcher.cycle()
