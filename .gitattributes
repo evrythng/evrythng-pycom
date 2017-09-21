@@ -1,2 +1,0 @@
-secretfile filter=git-crypt diff=git-crypt
-config.py filter=git-crypt diff=git-crypt
