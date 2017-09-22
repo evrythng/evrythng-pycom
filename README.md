@@ -1,5 +1,5 @@
 # appliance-sensor
-This is the device code of our appliance sensing and replenishement project
+This is the device code of our appliance sensing and replenishement project.
 
 ## Uploading the code to a Pycom device
 * Install Atom
