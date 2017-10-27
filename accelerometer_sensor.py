@@ -1,5 +1,6 @@
 import pycom
 import time
+import gc
 from machine import Timer
 from LIS2HH12 import LIS2HH12
 from micropython import const
@@ -63,3 +64,5 @@ class VibrationSensor:
         while True:
             self.cycle()
             time.sleep(.1)
+            gc.collect()
+            print('free RAM: {}'.format(gc.mem_free()))
