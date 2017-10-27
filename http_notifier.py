@@ -27,7 +27,7 @@ class HttpNotifier():
             if net.ssid == config['ssid']:
                 print('WLAN: connecting to {}...'.format(net.ssid))
                 self._wlan.connect(config['ssid'], auth=(
-                    net.sec, config['passphrase']), timeout=5000)
+                    net.sec, config['passphrase']), timeout=10000)
                 Timer.Alarm(self.connection_timer_handler, 10, periodic=False)
                 while not self._wlan.isconnected():
                     machine.idle()  # save power while waiting
