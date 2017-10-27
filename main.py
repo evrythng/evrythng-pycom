@@ -23,7 +23,7 @@ else:
     from http_notifier import HttpNotifier
     notifier = HttpNotifier(config['thng_id'], config['api_key'])
 
-wdt = WDT(timeout=20000)  # enable it with a timeout of 20 seconds
+wdt = WDT(timeout=25000)  # enable it with a timeout of 20 seconds
 
 queue = NotificationQueue()
 dispatcher = CloudDispatcher(queue, [notifier])
