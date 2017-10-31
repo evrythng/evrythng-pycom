@@ -1,7 +1,6 @@
 import machine
 import urequests as requests
 import ujson as json
-import provision
 from network import WLAN
 from config import config
 from notification_queue import NotificationQueue
@@ -11,8 +10,8 @@ from machine import Timer
 class HttpNotifier():
     def connection_timer_handler(self, alarm):
         if not self._wlan.isconnected():
-            print('failed to connect to {}, entering provisioning mode...'.format(config['ssid']))
-            provision.enter_provisioning_mode()
+            print('failed to connect to {}, restarting...'.format(config['ssid']))
+            machine.reset()
 
     def __init__(self, thng_id, api_key):
         self._thng_id = thng_id
@@ -27,8 +26,8 @@ class HttpNotifier():
             if net.ssid == config['ssid']:
                 print('WLAN: connecting to {}...'.format(net.ssid))
                 self._wlan.connect(config['ssid'], auth=(
-                    net.sec, config['passphrase']), timeout=10000)
-                Timer.Alarm(self.connection_timer_handler, 10, periodic=False)
+                    net.sec, config['passphrase']), timeout=30000)
+                Timer.Alarm(self.connection_timer_handler, 35, periodic=False)
                 while not self._wlan.isconnected():
                     machine.idle()  # save power while waiting
                 print('WLAN: connection to {} succeeded!'.format(config['ssid']))
