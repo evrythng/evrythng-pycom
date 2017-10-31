@@ -1,4 +1,5 @@
 import machine
+import provision
 import urequests as requests
 import ujson as json
 from network import WLAN
@@ -34,6 +35,12 @@ class HttpNotifier():
                 print('ifconfig: {}'.format(self._wlan.ifconfig()))
                 self._send_props([{'key': 'in_use', 'value': False}])
                 break
+
+        # seems like we are still not connected,
+        # setup wifi network does not exist ???
+        if not self._wlan.isconnected():
+            print('failed to connect or specified network does not exist')
+            provision.enter_provisioning_mode()
 
     def _send_props(self, data):
         print(json.dumps(data))
