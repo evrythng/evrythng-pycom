@@ -39,5 +39,5 @@ while True:
 
     vbat_counter -= 1
     if not vbat_counter:
-        queue.push_battery_voltage(ps.read_battery_voltage())
+        queue.push_uptime(time.time())
         vbat_counter = vbat_period

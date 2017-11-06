@@ -25,5 +25,7 @@ class SigfoxNotifier():
             self._socket.send(notification.data.to_bytes(8))
         elif NotificationQueue.BATTERY_VOLTAGE:
             pass
+        elif NotificationQueue.UPTIME:
+            pass
         else:
             print('unsupported event {}'.format(notification.type))

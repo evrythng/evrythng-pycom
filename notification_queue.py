@@ -9,6 +9,7 @@ class NotificationQueue:
     VIBRATION_STARTED = 1
     VIBRATION_STOPPED = 2
     BATTERY_VOLTAGE = 3
+    UPTIME = 4
 
     def __init__(self):
         self._deque = deque()
@@ -33,6 +34,15 @@ class NotificationQueue:
 
     def push_battery_voltage(self, voltage):
         self._push(Notification(type=NotificationQueue.BATTERY_VOLTAGE, data=voltage))
+
+    def push_uptime(self, uptime_sec):
+        # uptime_sec = uptime_ms // 1000
+        uptime_hours = uptime_sec // (60 * 60)
+        uptime_sec -= uptime_hours * (60 * 60)
+        uptime_min = uptime_sec // 60
+        uptime_sec -= uptime_min * 60
+        self._push(Notification(type=NotificationQueue.UPTIME,
+                                data='{}h {}m {}s'.format(uptime_hours, uptime_min, uptime_sec)))
 
     def __len__(self):
         return len(self._deque)
