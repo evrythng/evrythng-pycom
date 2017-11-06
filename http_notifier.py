@@ -1,7 +1,7 @@
 import machine
 import provision
+import time
 import urequests as requests
-import ujson as json
 from network import WLAN
 from config import config
 from notification_queue import NotificationQueue
@@ -40,28 +40,37 @@ class HttpNotifier():
         # setup wifi network does not exist ???
         if not self._wlan.isconnected():
             print('failed to connect or specified network does not exist')
-            provision.enter_provisioning_mode()
+            time.sleep(3)
+            machine.reset()
+            # provision.enter_provisioning_mode()
+
+    def _send(self, method, url, json):
+        print('REQUEST: {}: {}'.format(method, json))
+        try:
+            resp = requests.request(method=method,
+                                    url=url,
+                                    json=json,
+                                    headers=self._http_headers)
+        except OSError as e:
+            print('RESPONSE: failed to perform request: {}'.format(e))
+            if not self._wlan.isconnected():
+                print('wifi connection lost, restarting...')
+                time.sleep(3)
+                machine.reset()
+        else:
+            print('RESPONSE: {}...'.format(str(resp.json())[:100]))
 
     def _send_props(self, data):
-        print(json.dumps(data))
-        resp = requests.put('https://api.evrythng.com/thngs/{}/properties'.format(self._thng_id),
-                            headers=self._http_headers, json=data)
-        try:
-            print('{}'.format(resp.json()))
-        except ValueError as e:
-            print(e)
-            pass
+        self._send(method='PUT',
+                   url='https://api.evrythng.com/thngs/{}/properties'.format(self._thng_id),
+                   json=data)
 
     def _send_actions(self, data):
-        print(json.dumps(data))
         for action in data:
-            resp = requests.post('https://api.evrythng.com/thngs/{}/actions/{}'.format(self._thng_id, action['type']),
-                                 headers=self._http_headers, json=action)
-            try:
-                print('{}'.format(resp.json()))
-            except ValueError as e:
-                print(e)
-                pass
+            self._send(method='POST',
+                       url='https://api.evrythng.com/thngs/{}/actions/{}'.format(
+                           self._thng_id, action['type']),
+                       json=action)
 
     def handle_notification(self, notification):
         if notification.type == NotificationQueue.VIBRATION_STARTED:
@@ -76,5 +85,8 @@ class HttpNotifier():
 
         elif notification.type == NotificationQueue.BATTERY_VOLTAGE:
             self._send_props([{'key': 'battery_voltage', 'value': notification.data}])
+
+        elif notification.type == NotificationQueue.UPTIME:
+            self._send_props([{'key': 'uptime', 'value': notification.data}])
         else:
             print('unsupported event {}'.format(notification.type))
