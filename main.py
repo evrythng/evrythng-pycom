@@ -1,8 +1,10 @@
+import math
 import time
 import _thread
 import pysense
 from machine import Pin
 from machine import WDT
+from machine import Timer
 from micropython import const
 from config import config
 from notification_queue import NotificationQueue
@@ -31,7 +33,10 @@ dispatcher = CloudDispatcher(queue, [notifier])
 v = VibrationSensor(queue)
 _thread.start_new_thread(v.loop_forever, tuple())
 
-vbat_counter = vbat_period = const(60 * 10)
+uptimer = Timer.Chrono()
+uptimer.start()
+
+vbat_counter = vbat_period = const(90 * 10)
 while True:
     wdt.feed()
     dispatcher.cycle()
@@ -39,5 +44,6 @@ while True:
 
     vbat_counter -= 1
     if not vbat_counter:
-        queue.push_uptime(time.time())
+        print('uptime: {}'.format(uptimer.read()))
+        queue.push_uptime(math.floor(uptimer.read()))
         vbat_counter = vbat_period
