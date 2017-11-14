@@ -1,9 +1,8 @@
 import machine
-import provision
 import time
 import urequests as requests
 from network import WLAN
-from config import config
+from config import wifi_config
 from notification_queue import NotificationQueue
 from machine import Timer
 
@@ -11,7 +10,7 @@ from machine import Timer
 class HttpNotifier():
     def connection_timer_handler(self, alarm):
         if not self._wlan.isconnected():
-            print('failed to connect to {}, restarting...'.format(config['ssid']))
+            print('failed to connect to {}, restarting...'.format(wifi_config['ssid']))
             machine.reset()
 
     def __init__(self, thng_id, api_key):
@@ -24,14 +23,14 @@ class HttpNotifier():
         print('WLAN: scanned networks: {}'.format([net.ssid for net in nets]))
 
         for net in nets:
-            if net.ssid == config['ssid']:
+            if net.ssid == wifi_config['ssid']:
                 print('WLAN: connecting to {}...'.format(net.ssid))
-                self._wlan.connect(config['ssid'], auth=(
-                    net.sec, config['passphrase']), timeout=30000)
+                self._wlan.connect(wifi_config['ssid'], auth=(
+                    net.sec, wifi_config['passphrase']), timeout=30000)
                 Timer.Alarm(self.connection_timer_handler, 35, periodic=False)
                 while not self._wlan.isconnected():
                     machine.idle()  # save power while waiting
-                print('WLAN: connection to {} succeeded!'.format(config['ssid']))
+                print('WLAN: connection to {} succeeded!'.format(wifi_config['ssid']))
                 print('ifconfig: {}'.format(self._wlan.ifconfig()))
                 self._send_props([{'key': 'in_use', 'value': False}])
                 break

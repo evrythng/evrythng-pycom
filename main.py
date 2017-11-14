@@ -6,7 +6,7 @@ from machine import Pin
 from machine import WDT
 from machine import Timer
 from micropython import const
-from config import config
+from config import cloud_config
 from notification_queue import NotificationQueue
 from accelerometer_sensor import VibrationSensor
 from temp_sensor import TemperatureSensor
@@ -24,7 +24,7 @@ if wireless_selector():
 else:
     print('HTTP notifier selected')
     from http_notifier import HttpNotifier
-    notifier = HttpNotifier(config['thng_id'], config['api_key'])
+    notifier = HttpNotifier(cloud_config['thng_id'], cloud_config['api_key'])
 
 wdt = WDT(timeout=25000)  # enable it with a timeout of 20 seconds
 

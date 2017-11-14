@@ -19,7 +19,10 @@ os.dupterm(uart)
 provision.check_and_start_provisioning_mode()
 
 try:
-    config.read_config()
-except config.InvalidConfigException:
-    print('reading config failed, starting provisioning mode')
+    config.read_configs()
+except config.InvalidWifiConfigException:
+    print('reading wifi config failed, starting provisioning mode')
+    provision.start_provisioning_server()
+except config.InvalidCloudConfigException:
+    print('reading cloud config failed, starting provisioning mode')
     provision.start_provisioning_server()
