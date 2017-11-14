@@ -50,4 +50,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-settings.json
+
+wifi.json
+cloud.json
