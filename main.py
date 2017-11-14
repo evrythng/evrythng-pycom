@@ -9,7 +9,7 @@ from micropython import const
 from config import config
 from notification_queue import NotificationQueue
 from accelerometer_sensor import VibrationSensor
-from humidity_temperature_sensor import HumidityTemperatureSensor
+from temp_sensor import TemperatureSensor
 from dispatcher import CloudDispatcher
 
 ps = pysense.Pysense()
@@ -34,7 +34,7 @@ dispatcher = CloudDispatcher(queue, [notifier])
 v = VibrationSensor(queue)
 _thread.start_new_thread(v.loop_forever, tuple())
 
-ht = HumidityTemperatureSensor(queue, 30, 30)
+ht = TemperatureSensor(queue, 30)
 
 uptimer = Timer.Chrono()
 uptimer.start()

@@ -11,7 +11,6 @@ class NotificationQueue:
     BATTERY_VOLTAGE = 3
     UPTIME = 4
     TEMPERATURE = 5
-    HUMIDITY = 6
 
     def __init__(self):
         self._deque = deque()
@@ -48,9 +47,6 @@ class NotificationQueue:
 
     def push_temperature(self, temperature):
         self._push(Notification(type=NotificationQueue.TEMPERATURE, data=temperature))
-
-    def push_humidity(self, humidity):
-        self._push(Notification(type=NotificationQueue.HUMIDITY, data=humidity))
 
     def __len__(self):
         return len(self._deque)
