@@ -1,4 +1,5 @@
 import os
+import gc
 import pycom
 import machine
 import usocket as socket
@@ -178,3 +179,4 @@ def start_provisioning_server():
                         totalsent += sent
         finally:
             client_s.close()
+            gc.collect()
