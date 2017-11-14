@@ -88,5 +88,11 @@ class HttpNotifier():
 
         elif notification.type == NotificationQueue.UPTIME:
             self._send_props([{'key': 'uptime', 'value': notification.data}])
+
+        elif notification.type == NotificationQueue.HUMIDITY:
+            self._send_props([{'key': 'humidity', 'value': notification.data}])
+
+        elif notification.type == NotificationQueue.TEMPERATURE:
+            self._send_props([{'key': 'temperature', 'value': notification.data}])
         else:
             print('unsupported event {}'.format(notification.type))
