@@ -34,19 +34,19 @@ dispatcher = CloudDispatcher(queue, [notifier])
 v = VibrationSensor(queue)
 _thread.start_new_thread(v.loop_forever, tuple())
 
-ht = TemperatureSensor(queue, 30)
+ht = TemperatureSensor(queue, 60)
 
 uptimer = Timer.Chrono()
 uptimer.start()
 
-vbat_counter = vbat_period = const(90 * 10)
+uptime_counter = uptime_period = const(90 * 10)
 while True:
     wdt.feed()
     dispatcher.cycle()
     time.sleep(.1)
 
-    vbat_counter -= 1
-    if not vbat_counter:
+    uptime_counter -= 1
+    if not uptime_counter:
         print('uptime: {}'.format(uptimer.read()))
         queue.push_uptime(math.floor(uptimer.read()))
-        vbat_counter = vbat_period
+        uptime_counter = uptime_period
