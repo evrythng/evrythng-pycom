@@ -1,5 +1,6 @@
 import machine
 import time
+import gc
 import urequests as requests
 from network import WLAN
 from config import wifi_config
@@ -58,6 +59,7 @@ class HttpNotifier():
                 machine.reset()
         else:
             print('RESPONSE: {}...'.format(str(resp.json())[:100]))
+            gc.collect()
 
     def _send_props(self, data):
         self._send(method='PUT',
