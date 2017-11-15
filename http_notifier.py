@@ -40,7 +40,7 @@ class HttpNotifier():
         # setup wifi network does not exist ???
         if not self._wlan.isconnected():
             print('failed to connect or specified network does not exist')
-            time.sleep(3)
+            time.sleep(20)
             machine.reset()
             # provision.enter_provisioning_mode()
 
