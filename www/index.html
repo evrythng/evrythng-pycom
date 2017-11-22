@@ -624,6 +624,7 @@
 
 </body>
 <script>
+    var fd;
     window.addEventListener('load', () => {
         fetch(new Request('/scan')).then(resp => {
             return resp.json();
@@ -644,9 +645,12 @@
     const formElement = document.querySelector('form');
     formElement.addEventListener('submit', e => {
         e.preventDefault();
-        let data = {};
-        for (let [k,v] of new FormData(formElement))
-            data[k]=v;
+        // Removed new FormData and access elements directly instead
+        let data = {
+            ssid: formElement.elements["ssid"].value,
+            passphrase:formElement.elements["passphrase"].value
+        };
+       
         fetch(new Request('/provision', {
             method: 'POST',
             headers: new Headers({'Content-Type': 'application/json'}),
