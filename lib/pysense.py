@@ -3,9 +3,11 @@ from machine import I2C
 import time
 import pycom
 
-__version__ = '1.1.0'
+__version__ = '1.3.0'
 
-EXP_RTC_PERIOD = 7000
+WAKE_REASON_ACCELEROMETER = 1
+WAKE_REASON_PUSH_BUTTON = 2
+WAKE_REASON_TIMER = 4
 
 class Pysense:
 
@@ -37,6 +39,9 @@ class Pysense:
     ADCON0_ADDR = const(0x9D)
     ADCON1_ADDR = const(0x9E)
 
+    IOCAP_ADDR = const(0x391)
+    IOCAN_ADDR = const(0x392)
+
     _ADCON0_CHS_POSN = const(0x02)
     _ADCON0_ADON_MASK = const(0x01)
     _ADCON1_ADCS_POSN = const(0x04)
@@ -52,21 +57,26 @@ class Pysense:
 
     WPUA_ADDR = const(0x20C)
 
-    MEMORY_BANK_ADDR = const(0x620)
+    WAKE_REASON_ADDR = const(0x064F)
+    MEMORY_BANK_ADDR = const(0x0620)
 
     PCON_ADDR = const(0x096)
     STATUS_ADDR = const(0x083)
 
+    EXP_RTC_PERIOD = const(7000)
 
     def __init__(self, i2c=None, sda='P22', scl='P21'):
         if i2c is not None:
             self.i2c = i2c
         else:
             self.i2c = I2C(0, mode=I2C.MASTER, pins=(sda, scl))
+
         self.sda = sda
         self.scl = scl
         self.clk_cal_factor = 1
         self.reg = bytearray(6)
+        self.wake_int = False
+
         try:
             self.read_fw_version()
         except Exception:
@@ -83,6 +93,10 @@ class Pysense:
             # set RC6 and RC7 as outputs and enable power to the sensors
             self.mask_bits_in_memory(TRISC_ADDR, ~(1 << 6))
             self.mask_bits_in_memory(TRISC_ADDR, ~(1 << 7))
+
+            if self.read_fw_version() < 6:
+                raise ValueError('Pysense firmware out of date')
+
         except Exception:
             raise Exception('Pysense board not detected')
 
@@ -141,6 +155,9 @@ class Pysense:
     def set_bits_in_memory(self, addr, bits):
         self.magic_write_read(addr, _or=bits)
 
+    def get_wake_reason(self):
+        return self.peek_memory(WAKE_REASON_ADDR)
+
     def setup_sleep(self, time_s):
         try:
             self.calibrate_rtc()
@@ -150,12 +167,21 @@ class Pysense:
         self._write(bytes([CMD_SETUP_SLEEP, time_s & 0xFF, (time_s >> 8) & 0xFF, (time_s >> 16) & 0xFF]))
 
     def go_to_sleep(self):
-        # disable back-up power to the pressure sensor
+        # disable power to the pressure sensor
         self.mask_bits_in_memory(PORTC_ADDR, ~(1 << 7))
-        self.poke_memory(ADCON0_ADDR, 0)            # disable the ADC
-        self.poke_memory(ANSELA_ADDR, ~(1 << 3))    # Don't touch RA3 so that button wake up works
+        # disable the ADC
+        self.poke_memory(ADCON0_ADDR, 0)
+
+        if self.wake_int:
+            # Don't touch RA3 or RA5 so that interrupt wake-up works
+            self.poke_memory(ANSELA_ADDR, ~((1 << 3) | (1 << 5)))
+            self.poke_memory(ANSELC_ADDR, ~((1 << 6) | (1 << 7)))
+        else:
+            # disable power to the accelerometer, and don't touch RA3 so that button wake-up works
+            self.poke_memory(ANSELA_ADDR, ~(1 << 3))
+            self.poke_memory(ANSELC_ADDR, ~(1 << 7))
+
         self.poke_memory(ANSELB_ADDR, 0xFF)
-        self.poke_memory(ANSELC_ADDR, ~(1 << 7))
         self._write(bytes([CMD_GO_SLEEP]), wait=False)
         # kill the run pin
         Pin('P3', mode=Pin.OUT, value=0)
@@ -185,3 +211,19 @@ class Pysense:
             time.sleep_us(100)
         adc_val = (self.peek_memory(ADRESH_ADDR) << 2) + (self.peek_memory(ADRESL_ADDR) >> 6)
         return (((adc_val * 3.3 * 280) / 1023) / 180) + 0.01    # add 10mV to compensate for the drop in the FET
+
+    def setup_int_wake_up(self, rising, falling):
+        """ rising is for activity detection, falling for inactivity """
+        wake_int = False
+        if rising:
+            self.set_bits_in_memory(IOCAP_ADDR, 1 << 5)
+            wake_int = True
+        else:
+            self.mask_bits_in_memory(IOCAP_ADDR, ~(1 << 5))
+
+        if falling:
+            self.set_bits_in_memory(IOCAN_ADDR, 1 << 5)
+            wake_int = True
+        else:
+            self.mask_bits_in_memory(IOCAN_ADDR, ~(1 << 5))
+        self.wake_int = wake_int

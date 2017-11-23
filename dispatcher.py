@@ -1,4 +1,5 @@
 import time
+import gc
 
 
 class CloudDispatcher:
@@ -13,6 +14,7 @@ class CloudDispatcher:
         for n in self._notifiers:
             for e in notifications:
                 n.handle_notification(e)
+                gc.collect()
 
     def loop_forever(self):
         while True:

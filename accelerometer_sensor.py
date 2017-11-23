@@ -1,5 +1,6 @@
 import pycom
 import time
+import gc
 from machine import Timer
 from LIS2HH12 import LIS2HH12
 from micropython import const
@@ -12,7 +13,7 @@ class VibrationSensor:
 
     def __init__(self, queue):
         self._queue = queue
-        self._t_v_release = const(5)
+        self._t_v_release = const(4)
         self._t_v_min = const(2)
         self._t_v_last = 0
         self._v_delta = .04
@@ -46,7 +47,7 @@ class VibrationSensor:
         elif self._v_detected:
             t = self._chrono.read()
             diff = t - self._t_v_last
-            print('last vibration {} sec ago'.format(diff))
+            # print('last vibration {} sec ago'.format(diff))
 
             if diff > self._t_v_release:
                 self._chrono.stop()
@@ -63,3 +64,4 @@ class VibrationSensor:
         while True:
             self.cycle()
             time.sleep(.1)
+            gc.collect()

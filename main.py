@@ -1,12 +1,15 @@
+import math
 import time
 import _thread
 import pysense
 from machine import Pin
 from machine import WDT
+from machine import Timer
 from micropython import const
-from config import config
+from config import cloud_config
 from notification_queue import NotificationQueue
 from accelerometer_sensor import VibrationSensor
+from temp_sensor import TemperatureSensor
 from dispatcher import CloudDispatcher
 
 ps = pysense.Pysense()
@@ -21,9 +24,9 @@ if wireless_selector():
 else:
     print('HTTP notifier selected')
     from http_notifier import HttpNotifier
-    notifier = HttpNotifier(config['thng_id'], config['api_key'])
+    notifier = HttpNotifier(cloud_config['thng_id'], cloud_config['api_key'])
 
-wdt = WDT(timeout=20000)  # enable it with a timeout of 20 seconds
+wdt = WDT(timeout=25000)  # enable it with a timeout of 20 seconds
 
 queue = NotificationQueue()
 dispatcher = CloudDispatcher(queue, [notifier])
@@ -31,13 +34,19 @@ dispatcher = CloudDispatcher(queue, [notifier])
 v = VibrationSensor(queue)
 _thread.start_new_thread(v.loop_forever, tuple())
 
-vbat_counter = vbat_period = const(60 * 10)
+ht = TemperatureSensor(queue, 60)
+
+uptimer = Timer.Chrono()
+uptimer.start()
+
+uptime_counter = uptime_period = const(90 * 10)
 while True:
     wdt.feed()
     dispatcher.cycle()
     time.sleep(.1)
 
-    vbat_counter -= 1
-    if not vbat_counter:
-        queue.push_battery_voltage(ps.read_battery_voltage())
-        vbat_counter = vbat_period
+    uptime_counter -= 1
+    if not uptime_counter:
+        print('uptime: {}'.format(uptimer.read()))
+        queue.push_uptime(math.floor(uptimer.read()))
+        uptime_counter = uptime_period

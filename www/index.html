@@ -617,17 +617,14 @@
     <div class="pure-group">
         <select id="ssid" name="ssid" required class="menu-item"></select>
         <input id="passphrase" required name="passphrase" class="menu-item" type="password"
-               placeholder="WiFi Passphrase" value="SSID"/>
-        <input id="thng" name="thng_id" required pattern="([A-z0-9]{24})" class="menu-item" placeholder="Thng Id"
-               value=""/>
-        <input id="apikey" name="api_key" required pattern="([A-z0-9]{80})" class="menu-item" placeholder="API Key"
-               value=""/>
+               placeholder="WiFi Passphrase"/>
         <button id="provbutton" class="pure-button pure-button-primary menu-item">submit</button>
     </div>
 </form>
 
 </body>
 <script>
+    var fd;
     window.addEventListener('load', () => {
         fetch(new Request('/scan')).then(resp => {
             return resp.json();
@@ -648,14 +645,15 @@
     const formElement = document.querySelector('form');
     formElement.addEventListener('submit', e => {
         e.preventDefault();
-        let data = {};
-        for (let [k,v] of new FormData(formElement))
-            data[k]=v;
-        fetch(new Request('/provision', {
+        let payload = {
+            ssid: formElement.elements["ssid"].value,
+            passphrase:formElement.elements["passphrase"].value
+        };
+        fetch('/provision', {
             method: 'POST',
-            headers: new Headers({'Content-Type': 'application/json'}),
-            body: JSON.stringify(data)
-        })).then(resp => {
+            headers: new Headers({'Content-Type': 'application/json','Accept': 'application/json'}),
+            body: JSON.stringify(payload)
+        }).then(resp => {
             if (resp.status >=200 && resp.status <300)
                 alert('Device Configured');
             else

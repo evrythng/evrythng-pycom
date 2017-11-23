@@ -1,13 +1,15 @@
 import os
+import gc
 import pycom
 import machine
 import usocket as socket
 import ujson as json
-from config import config_file_path
+from config import wifi_config_path
 from network import WLAN
 from machine import Timer
 
 provisioning_flag_path = '/flash/.provision_me'
+index_page_path = 'www/index.html'
 
 
 def method_not_allowed():
@@ -58,7 +60,7 @@ def handle_provision_request(request, data):
         print('Failed to parse json [{}]: {}'.format(data, e))
         return bad_request()
 
-    f = open(config_file_path, 'w')
+    f = open(wifi_config_path, 'w')
     f.write(json.dumps(prov_data))
     f.close()
 
@@ -84,13 +86,7 @@ def handle_scan_request(request, data):
 def handle_root_request(request, data):
     if request != 'GET':
         return method_not_allowed()
-
-    filename = 'www/index.html'
-    f = open(filename, 'r')
-    content = f.read()
-    f.close()
-
-    return ok(content_type='text/html', content=content)
+    return ok(content_type='text/html', content=index_content)
 
 
 routes = {
@@ -138,11 +134,17 @@ def enter_provisioning_mode():
 
 
 def start_provisioning_server():
+    global index_content
+
     pycom.heartbeat(True)
 
     wlan = WLAN()
     wlan.init(mode=WLAN.STA_AP, ssid='appliance-sensor',
               auth=(WLAN.WPA2, 'evrythng'), channel=7, antenna=WLAN.INT_ANT)
+
+    f = open(index_page_path, 'r')
+    index_content = f.read()
+    f.close()
 
     s = socket.socket()
 
@@ -174,7 +176,11 @@ def start_provisioning_server():
                     client_s.write(header)
                     totalsent = 0
                     while totalsent < len(content):
-                        sent = client_s.write(content)
+                        try:
+                            sent = client_s.write(content)
+                        except:
+                            pass
                         totalsent += sent
         finally:
             client_s.close()
+            gc.collect()
