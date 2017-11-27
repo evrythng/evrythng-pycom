@@ -7,7 +7,7 @@ import provision
 from machine import UART
 from reset import ResetButton
 
-ResetButton('P19')
+ResetButton('P14')
 
 pycom.heartbeat(False)
 
