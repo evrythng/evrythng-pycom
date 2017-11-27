@@ -10,7 +10,7 @@ class NotificationQueue:
     VIBRATION_STOPPED = 2
     BATTERY_VOLTAGE = 3
     UPTIME = 4
-    TEMPERATURE = 5
+    AMBIENT = 5
 
     def __init__(self):
         self._deque = deque()
@@ -45,8 +45,9 @@ class NotificationQueue:
         self._push(Notification(type=NotificationQueue.UPTIME,
                                 data='{}h {}m {}s'.format(uptime_hours, uptime_min, uptime_sec)))
 
-    def push_temperature(self, temperature):
-        self._push(Notification(type=NotificationQueue.TEMPERATURE, data=temperature))
+    def push_ambient(self, temperature, humidity, pressure):
+        self._push(Notification(type=NotificationQueue.AMBIENT,
+                                data=(temperature, humidity, pressure)))
 
     def __len__(self):
         return len(self._deque)
