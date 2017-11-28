@@ -1,12 +1,12 @@
-import pycom
 import time
 import gc
+from pycom import rgbled
 from machine import Timer
 from LIS2HH12 import LIS2HH12
 from micropython import const
 
-led_red = (lambda: pycom.rgbled(0x440000))
-led_green = (lambda: pycom.rgbled(0x004400))
+led_red = (lambda: rgbled(0x440000))
+led_green = (lambda: rgbled(0x004400))
 
 
 class VibrationSensor:

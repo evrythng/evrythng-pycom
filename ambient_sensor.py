@@ -18,10 +18,6 @@ class AmbientSensor:
         temp_sensor = self._dev_mpl.temperature()
         humidity_sensor = self._dev_si.humidity()
         pressure_sensor = self._dev_mpl.pressure()
-
         temp_calib = temp_sensor - self._temp_calib
         humidity_calib = humidity_sensor / (math.pow(.95, self._temp_calib))
-
-        print('temp: {}, hum: {}, pressure: {}'.format(
-            temp_calib, humidity_calib, pressure_sensor))
         self._queue.push_ambient(temp_calib, humidity_calib, pressure_sensor)

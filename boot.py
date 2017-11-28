@@ -1,11 +1,10 @@
-# boot.py -- run on boot-up
 import os
 import pycom
 import config
 import provision
-# from upgrade import sd_upgrade
 from machine import UART
 from reset import ResetButton
+from ota_upgrade import check_and_start_upgrade
 
 ResetButton('P19')
 
@@ -13,8 +12,6 @@ pycom.heartbeat(False)
 
 uart = UART(0, 115200)
 os.dupterm(uart)
-
-# sd_upgrade()
 
 provision.check_and_start_provisioning_mode()
 
@@ -26,3 +23,5 @@ except config.InvalidWifiConfigException:
 except config.InvalidCloudConfigException:
     print('reading cloud config failed, starting provisioning mode')
     provision.start_provisioning_server()
+
+check_and_start_upgrade()

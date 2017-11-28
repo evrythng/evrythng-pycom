@@ -1,7 +1,6 @@
 import math
 import time
 import _thread
-import pysense
 from machine import Pin
 from machine import WDT
 from machine import Timer
@@ -11,10 +10,7 @@ from notification_queue import NotificationQueue
 from accelerometer_sensor import VibrationSensor
 from ambient_sensor import AmbientSensor
 from dispatcher import CloudDispatcher
-
-ps = pysense.Pysense()
-print('Pysense HW ver: {}, FW ver: {}'.format(
-    ps.read_hw_version(), ps.read_fw_version()))
+from ota_upgrade import OTAUpgrader
 
 wireless_selector = Pin('P20', mode=Pin.IN, pull=Pin.PULL_DOWN)
 if wireless_selector():
@@ -26,7 +22,7 @@ else:
     from http_notifier import HttpNotifier
     notifier = HttpNotifier(cloud_config['thng_id'], cloud_config['api_key'])
 
-wdt = WDT(timeout=25000)  # enable it with a timeout of 20 seconds
+wdt = WDT(timeout=25000)  # enable it with a timeout of 25 seconds
 
 queue = NotificationQueue()
 dispatcher = CloudDispatcher(queue, [notifier])
@@ -39,6 +35,8 @@ ht = AmbientSensor(queue, 90)
 uptimer = Timer.Chrono()
 uptimer.start()
 
+ota_upgrader = OTAUpgrader()
+
 uptime_counter = uptime_period = const(90 * 10)
 while True:
     wdt.feed()
@@ -47,6 +45,6 @@ while True:
 
     uptime_counter -= 1
     if not uptime_counter:
-        print('uptime: {}'.format(uptimer.read()))
         queue.push_uptime(math.floor(uptimer.read()))
+        ota_upgrader.check_and_upgrade()
         uptime_counter = uptime_period
