@@ -1,12 +1,16 @@
-# Reimplement, because CPython3.3 impl is rather bloated
 import os
 
 
 def rmtree(top):
-    for path, dirs, files in os.walk(top, False):
-        for f in files:
-            os.unlink(path + "/" + f)
-        os.rmdir(path)
+    dir_flag = 0x4000
+    for name in os.listdir(top):
+        path = top + os.sep + name
+        if os.stat(path)[0] & dir_flag == dir_flag:
+            rmtree(path)
+        else:
+            os.unlink(path)
+    os.rmdir(top)
+
 
 def copyfileobj(src, dest, length=512):
     if hasattr(src, "readinto"):
