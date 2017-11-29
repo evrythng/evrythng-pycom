@@ -1,13 +1,11 @@
 import os
 import gc
-import shutil
 import utarfile
 import config
-# from config import cloud_config
+import shutil
 import urequests as requests
 from time import sleep
 from machine import reset
-from shutil import copyfileobj
 
 upgrade_flag_path = '/flash/.upgrade_me'
 
@@ -52,15 +50,29 @@ def start_upgrade():
         print('failed to unpack firmware: {}'.format(e))
         return
 
-    print('firmware downloaded to: {}'.format(tmp_path))
-
 
 class OTAUpgrader:
-    def __init__(self):
+    def __init__(self, tmp_dir='/flash/tmp', tmp_name='firmware.bin'):
         self._version = 1
+        self._tmp_dir = tmp_dir
+        self._tmp_name = tmp_name
         self._thng_id = config.cloud_config['thng_id']
         self._api_key = config.cloud_config['api_key']
         self._http_headers = {'Content-Type': 'application/json', 'Authorization': self._api_key}
+
+    def check_and_upgrade(self):
+        try:
+            version, link = self.check_version()
+        except OSError:
+            return
+
+        if version > self._version:
+            print('a new version detected, rebooting to upgrade in 3 seconds ...')
+            f = open(upgrade_flag_path, mode='w')
+            f.write('upgrade me')
+            f.close()
+            sleep(3)
+            reset()
 
     def check_version(self):
         try:
@@ -83,20 +95,6 @@ class OTAUpgrader:
         gc.collect()
         return (version, link)
 
-    def check_and_upgrade(self):
-        try:
-            version, link = self.check_version()
-        except OSError:
-            return
-
-        if version > self._version:
-            print('a new version detected, rebooting to upgrade in 3 seconds ...')
-            f = open(upgrade_flag_path, mode='w')
-            f.write('upgrade me')
-            f.close()
-            sleep(3)
-            reset()
-
     def download(self, link):
         try:
             resp = requests.get(url=link)
@@ -104,27 +102,32 @@ class OTAUpgrader:
             print('RESPONSE: failed to perform request: {}'.format(e))
             raise
 
-        tmp_dir = '/flash/tmp'
         try:
-            os.stat(tmp_dir)
-        except:
-            os.mkdir(tmp_dir)
-        tmp_path = tmp_dir + '/firmware.bin'
+            shutil.rmtree(self._tmp_dir)
+        except Exception:
+            pass
+
+        os.mkdir(self._tmp_dir)
+        tmp_path = self._tmp_dir + os.sep + self._tmp_name
 
         f = open(tmp_path, 'wb')
-        copyfileobj(resp.raw, f)
+        shutil.copyfileobj(resp.raw, f)
         f.close()
+        print('firmware downloaded to {}'.format(tmp_path))
         return tmp_path
 
     def unpack(self, path):
-        print(os.getcwd())
+        os.chdir(self._tmp_dir)
         t = utarfile.TarFile(path)
         for i in t:
             print(i)
-            '''
             if i.type == utarfile.DIRTYPE:
                 os.makedirs(i.name)
             else:
-                f = t.extractfile(i)
-                shutil.copyfileobj(f, open(i.name, "wb"))
-                '''
+                src = t.extractfile(i)
+                dst = open(i.name, "wb")
+                shutil.copyfileobj(src, dst)
+                dst.close()
+            gc.collect()
+        os.unlink(path)
+        print('firmware upacked to {}'.format(self._tmp_dir))
