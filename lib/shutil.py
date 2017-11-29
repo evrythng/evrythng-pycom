@@ -1,11 +1,14 @@
 import os
 
 
+def is_dir(path):
+    return os.stat(path)[0] & 0x4000 == 0x4000
+
+
 def rmtree(top):
-    dir_flag = 0x4000
     for name in os.listdir(top):
         path = top + os.sep + name
-        if os.stat(path)[0] & dir_flag == dir_flag:
+        if is_dir(path):
             rmtree(path)
         else:
             os.unlink(path)
