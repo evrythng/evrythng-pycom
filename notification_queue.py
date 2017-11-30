@@ -1,4 +1,4 @@
-import _thread
+from _thread import allocate_lock
 from deque import deque
 from ucollections import namedtuple
 
@@ -14,7 +14,7 @@ class NotificationQueue:
 
     def __init__(self):
         self._deque = deque()
-        self._lock = _thread.allocate_lock()
+        self._lock = allocate_lock()
 
     def _push(self, notification):
         with self._lock:

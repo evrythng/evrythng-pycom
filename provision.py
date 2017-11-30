@@ -64,7 +64,7 @@ def handle_provision_request(request, data):
     f.write(json.dumps(prov_data))
     f.close()
 
-    reset_sec = 3
+    reset_sec = 5
     print('resetting board in {} sec'.format(reset_sec))
     Timer.Alarm(reset_timer_handler, reset_sec, periodic=False)
 

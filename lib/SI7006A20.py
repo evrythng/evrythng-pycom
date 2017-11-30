@@ -1,12 +1,14 @@
 import time
 from machine import I2C
+from micropython import const
+
 
 class SI7006A20:
     SI7006A20_I2C_ADDR = const(0x40)
     TEMP_NOHOLDMASTER = const(0xF3)
     HUMD_NOHOLDMASTER = const(0xF5)
 
-    def __init__(self, pysense = None, sda = 'P22', scl = 'P21'):
+    def __init__(self, pysense=None, sda='P22', scl='P21'):
         if pysense is not None:
             self.i2c = pysense.i2c
         else:
