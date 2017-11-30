@@ -84,9 +84,6 @@ class HttpNotifier():
             #  self._send_props([{'key': 'in_use', 'value': notification.data}])
             self._send_actions([{'type': '_appliance_stopped'}])
 
-        elif notification.type == NotificationQueue.BATTERY_VOLTAGE:
-            self._send_props([{'key': 'battery_voltage', 'value': notification.data}])
-
         elif notification.type == NotificationQueue.UPTIME:
             self._send_props([{'key': 'uptime', 'value': notification.data}])
 
@@ -96,5 +93,9 @@ class HttpNotifier():
                 {'key': 'humidity', 'value': notification.data[1]},
                 {'key': 'pressure', 'value': notification.data[2]}
             ])
+
+        elif notification.type == NotificationQueue.VERSION:
+            self._send_props([{'key': 'installed_version', 'value': notification.data}])
+
         else:
             print('unsupported event {}'.format(notification.type))

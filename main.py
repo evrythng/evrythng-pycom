@@ -11,6 +11,7 @@ from accelerometer_sensor import VibrationSensor
 from ambient_sensor import AmbientSensor
 from dispatcher import CloudDispatcher
 from ota_upgrade import OTAUpgrader
+from version import version
 
 wireless_selector = Pin('P20', mode=Pin.IN, pull=Pin.PULL_DOWN)
 if wireless_selector():
@@ -36,6 +37,7 @@ uptimer = Timer.Chrono()
 uptimer.start()
 
 ota_upgrader = OTAUpgrader()
+queue.push_version(version)
 
 uptime_counter = uptime_period = const(90 * 10)
 while True:

@@ -8,9 +8,9 @@ Notification = namedtuple('Notification', 'type data')
 class NotificationQueue:
     VIBRATION_STARTED = 1
     VIBRATION_STOPPED = 2
-    BATTERY_VOLTAGE = 3
-    UPTIME = 4
-    AMBIENT = 5
+    UPTIME = 3
+    AMBIENT = 4
+    VERSION = 5
 
     def __init__(self):
         self._deque = deque()
@@ -33,8 +33,8 @@ class NotificationQueue:
     def push_vibration_stopped(self, duration):
         self._push(Notification(type=NotificationQueue.VIBRATION_STOPPED, data=int(duration)))
 
-    def push_battery_voltage(self, voltage):
-        self._push(Notification(type=NotificationQueue.BATTERY_VOLTAGE, data=voltage))
+    def push_version(self, version):
+        self._push(Notification(type=NotificationQueue.VERSION, data=version))
 
     def push_uptime(self, uptime_sec):
         # uptime_sec = uptime_ms // 1000
