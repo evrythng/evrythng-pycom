@@ -1,5 +1,6 @@
 import os
 import gc
+import led
 import utarfile
 import shutil
 import urequests as requests
@@ -41,6 +42,8 @@ def start_upgrade(thng_id, api_key):
     except Exception as e:
         print('failed to check latest version: {}'.format(e))
         return
+
+    led.blink_red()
 
     ota = OTAUpgrader()
 

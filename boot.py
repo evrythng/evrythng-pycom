@@ -1,6 +1,5 @@
 import gc
 import os
-import pycom
 import config
 import provision
 from machine import UART
@@ -10,7 +9,6 @@ from ota_upgrade import start_upgrade_if_needed
 
 ResetButton('P19')
 
-pycom.heartbeat(False)
 uart = UART(0, 115200)
 os.dupterm(uart)
 
