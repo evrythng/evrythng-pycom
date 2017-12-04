@@ -11,6 +11,7 @@ from uhashlib import md5
 from ubinascii import hexlify
 
 upgrade_flag_path = '/flash/.upgrade_me'
+upgrade_in_progress_flag_path = '/flash/.upgrade_in_progress'
 
 
 def start_upgrade_if_needed():
@@ -104,9 +105,11 @@ def get_version(thng_id, api_key):
 
 
 class OTAUpgrader:
-    def __init__(self, tmp_dir='/flash/tmp', tmp_name='firmware.bin'):
+    def __init__(self, tmp_dir='/flash/tmp.fw', tmp_name='fw.bin'):
         self._tmp_dir = tmp_dir
         self._tmp_name = tmp_name
+        self._previous_dir = '/flash/previous.fw'
+        self._current_dir = '/flash'
 
     def download(self, link):
         try:
@@ -115,11 +118,7 @@ class OTAUpgrader:
             print('RESPONSE: failed to perform request: {}'.format(e))
             raise
 
-        try:
-            shutil.rmtree(self._tmp_dir)
-        except Exception:
-            pass
-
+        shutil.rmtree(self._tmp_dir)
         os.mkdir(self._tmp_dir)
         tmp_path = self._tmp_dir + os.sep + self._tmp_name
 
@@ -151,23 +150,13 @@ class OTAUpgrader:
     def unpack(self, path):
         os.chdir(self._tmp_dir)
 
-        def _create_folders_if_needed(filename):
-            folders = filename.split(os.sep)[:-1]
-            next_path = self._tmp_dir
-            for f in folders:
-                next_path += os.sep + f
-                try:
-                    os.stat(next_path)
-                except Exception:
-                    os.mkdir(next_path)
-
         t = utarfile.TarFile(path)
         for i in t:
             print(i)
             if i.type == utarfile.DIRTYPE:
                 os.mkdir(i.name)
             else:
-                _create_folders_if_needed(i.name)
+                self._create_folders_if_needed(self._tmp_dir + os.sep + i.name)
                 src = t.extractfile(i)
                 dst = open(i.name, "wb")
                 shutil.copyfileobj(src, dst)
@@ -175,32 +164,55 @@ class OTAUpgrader:
             gc.collect()
         os.unlink(path)
         os.chdir('/flash')
-        print('firmware upacked to {}'.format(self._tmp_dir))
+        print('firmware unpacked to {}'.format(self._tmp_dir))
 
     def upgrade(self):
-        src_dir = self._tmp_dir
-        dst_dir = '/flash'
+        # backup current firmware
+        shutil.rmtree(self._previous_dir)
+        self._copy_fw_files(self._current_dir, self._previous_dir)
 
-        def files_gen(base_dir):
-            supported_ext = ('.py', '.json', '.html')
-            for sub_dir in ['', '/lib', '/www']:
-                try:
-                    filenames = os.listdir(base_dir + sub_dir)
-                except OSError as e:
-                    print('failed to list directory (ignored): {}'.format(e))
-                else:
-                    for f in filenames:
-                        for ext in supported_ext:
-                            if f.endswith(ext):
-                                yield sub_dir + os.sep + f
+        # dangerous part begins
+        f = open(upgrade_in_progress_flag_path, mode='w')
+        f.write('upgrade in progress')
+        f.close()
 
-        src_filenames = list(files_gen(src_dir))
+        self._copy_fw_files(self._tmp_dir, self._current_dir)
+
+        # clean up
+        os.unlink(upgrade_in_progress_flag_path)
+        shutil.rmtree(self._tmp_dir)
+
+    def _copy_fw_files(self, src_dir, dst_dir):
+        src_filenames = list(self._file_list_gen(src_dir))
         for f in src_filenames:
             src_filename = src_dir + f
             dst_filename = dst_dir + f
+            print(dst_filename)
+            self._create_folders_if_needed(dst_filename)
             print('copying {} to {}'.format(src_filename, dst_filename))
             with open(src_filename, 'rb') as src, open(dst_filename, 'wb') as dst:
                 shutil.copyfileobj(src, dst)
 
-        # clean up
-        shutil.rmtree(src_dir)
+    def _file_list_gen(self, base_dir):
+        supported_ext = ('.py', '.json', '.html')
+        for sub_dir in ['', '/lib', '/www']:
+            try:
+                filenames = os.listdir(base_dir + sub_dir)
+            except OSError as e:
+                print('failed to list directory (ignored): {}'.format(e))
+            else:
+                for f in filenames:
+                    for ext in supported_ext:
+                        if f.endswith(ext):
+                            yield sub_dir + os.sep + f
+
+    def _create_folders_if_needed(self, filename):
+        # full path should be provided
+        folders = filename.split(os.sep)[1:-1]
+        next_path = ''
+        for f in folders:
+            next_path += os.sep + f
+            try:
+                os.stat(next_path)
+            except Exception:
+                os.mkdir(next_path)

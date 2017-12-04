@@ -6,6 +6,11 @@ def is_dir(path):
 
 
 def rmtree(top):
+    try:
+        os.stat(top)
+    except OSError:
+        return
+
     for name in os.listdir(top):
         path = top + os.sep + name
         if is_dir(path):
