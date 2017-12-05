@@ -10,13 +10,10 @@ from version import version
 from uhashlib import md5
 from ubinascii import hexlify
 
-upgrade_flag_path = '/flash/.upgrade_me'
-upgrade_in_progress_flag_path = '/flash/.upgrade_in_progress'
-
 
 def start_upgrade_if_needed():
     try:
-        os.stat(upgrade_flag_path)
+        os.stat(shutil.upgrade_flag_path)
     except OSError:
         return
 
@@ -30,10 +27,11 @@ def start_upgrade_if_needed():
                   config.cloud_config['api_key'])
 
     try:
-        os.unlink(upgrade_flag_path)
+        os.unlink(shutil.upgrade_flag_path)
     except:
         pass
 
+    os.sync()
     reset()
 
 
@@ -77,7 +75,7 @@ def check_and_upgrade_if_needed(thng_id, api_key):
 
     if ver > version:
         print('a new version detected, rebooting to upgrade in 3 seconds ...')
-        f = open(upgrade_flag_path, mode='w')
+        f = open(shutil.upgrade_flag_path, mode='w')
         f.write('upgrade me')
         f.close()
         sleep(3)
@@ -108,8 +106,6 @@ class OTAUpgrader:
     def __init__(self, tmp_dir='/flash/tmp.fw', tmp_name='fw.bin'):
         self._tmp_dir = tmp_dir
         self._tmp_name = tmp_name
-        self._previous_dir = '/flash/previous.fw'
-        self._current_dir = '/flash'
 
     def download(self, link):
         try:
@@ -139,6 +135,7 @@ class OTAUpgrader:
                 break
             m.update(buf)
         f.close()
+        os.sync()
 
         calculated_md5 = hexlify(m.digest()).decode('ascii')
         if md5sum != calculated_md5:
@@ -156,11 +153,12 @@ class OTAUpgrader:
             if i.type == utarfile.DIRTYPE:
                 os.mkdir(i.name)
             else:
-                self._create_folders_if_needed(self._tmp_dir + os.sep + i.name)
+                shutil.create_folders_if_needed(self._tmp_dir + os.sep + i.name)
                 src = t.extractfile(i)
                 dst = open(i.name, "wb")
                 shutil.copyfileobj(src, dst)
                 dst.close()
+                os.sync()
             gc.collect()
         os.unlink(path)
         os.chdir('/flash')
@@ -168,51 +166,16 @@ class OTAUpgrader:
 
     def upgrade(self):
         # backup current firmware
-        shutil.rmtree(self._previous_dir)
-        self._copy_fw_files(self._current_dir, self._previous_dir)
+        shutil.rmtree(shutil.previous_fw_dir)
+        shutil.copy_fw_files(shutil.current_fw_dir, shutil.previous_fw_dir)
 
         # dangerous part begins
-        f = open(upgrade_in_progress_flag_path, mode='w')
+        f = open(shutil.upgrade_in_progress_flag_path, mode='w')
         f.write('upgrade in progress')
         f.close()
 
-        self._copy_fw_files(self._tmp_dir, self._current_dir)
+        shutil.copy_fw_files(self._tmp_dir, shutil.current_fw_dir)
 
         # clean up
-        os.unlink(upgrade_in_progress_flag_path)
+        os.unlink(shutil.upgrade_in_progress_flag_path)
         shutil.rmtree(self._tmp_dir)
-
-    def _copy_fw_files(self, src_dir, dst_dir):
-        src_filenames = list(self._file_list_gen(src_dir))
-        for f in src_filenames:
-            src_filename = src_dir + f
-            dst_filename = dst_dir + f
-            print(dst_filename)
-            self._create_folders_if_needed(dst_filename)
-            print('copying {} to {}'.format(src_filename, dst_filename))
-            with open(src_filename, 'rb') as src, open(dst_filename, 'wb') as dst:
-                shutil.copyfileobj(src, dst)
-
-    def _file_list_gen(self, base_dir):
-        supported_ext = ('.py', '.json', '.html')
-        for sub_dir in ['', '/lib', '/www']:
-            try:
-                filenames = os.listdir(base_dir + sub_dir)
-            except OSError as e:
-                print('failed to list directory (ignored): {}'.format(e))
-            else:
-                for f in filenames:
-                    for ext in supported_ext:
-                        if f.endswith(ext):
-                            yield sub_dir + os.sep + f
-
-    def _create_folders_if_needed(self, filename):
-        # full path should be provided
-        folders = filename.split(os.sep)[1:-1]
-        next_path = ''
-        for f in folders:
-            next_path += os.sep + f
-            try:
-                os.stat(next_path)
-            except Exception:
-                os.mkdir(next_path)
