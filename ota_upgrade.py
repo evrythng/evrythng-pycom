@@ -10,6 +10,8 @@ from version import version
 from uhashlib import md5
 from ubinascii import hexlify
 
+action_name = '_upgrade'
+
 
 def start_upgrade_if_needed():
     try:
@@ -70,11 +72,13 @@ def start_upgrade(thng_id, api_key):
 def check_and_upgrade_if_needed(thng_id, api_key):
     try:
         ver, link = get_version(thng_id, api_key)
-    except OSError:
+    except Exception as e:
+        print('failed to check latest version: {}'.format(e))
         return
 
+    print("installed version: {}, available version: {}, link: {}".format(version, ver, link))
     if ver > version:
-        print('a new version detected, rebooting to upgrade in 3 seconds ...')
+        print('rebooting to upgrade in 3 seconds ...')
         f = open(shutil.upgrade_flag_path, mode='w')
         f.write('upgrade me')
         f.close()
@@ -84,7 +88,7 @@ def check_and_upgrade_if_needed(thng_id, api_key):
 
 def get_version(thng_id, api_key):
     try:
-        resp = requests.get(url='https://api.evrythng.com/thngs/{}/properties'.format(thng_id),
+        resp = requests.get(url='https://api.evrythng.com/thngs/{}/actions/{}?perPage=1'.format(thng_id, action_name),
                             headers={'Content-Type': 'application/json', 'Authorization': api_key})
     except OSError as e:
         print('RESPONSE: failed to perform request: {}'.format(e))
@@ -92,12 +96,10 @@ def get_version(thng_id, api_key):
     gc.collect()
 
     # print('RESPONSE: {}'.format(str(resp.json())))
-    r = resp.json()
-    for i in r:
-        if i['key'] == 'firmware_link':
-            link = i['value']
-        if i['key'] == 'available_version':
-            ver = i['value']
+    r = resp.json()[0]  # response is an array with 1 element
+    ver = r['customFields']['version']
+    link = r['customFields']['link']
+
     gc.collect()
     return (ver, link)
 

@@ -94,7 +94,7 @@ class HttpNotifier():
             ])
 
         elif notification.type == NotificationQueue.VERSION:
-            self._send_props([{'key': 'installed_version', 'value': notification.data}])
+            self._send_props([{'key': 'version', 'value': notification.data}])
 
         else:
             print('unsupported event {}'.format(notification.type))
