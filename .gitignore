@@ -42,6 +42,8 @@
 *.idb
 *.pdb
 
+*.pyc
+
 # Kernel Module Compile Results
 *.mod*
 *.cmd
@@ -53,4 +55,4 @@ dkms.conf
 
 wifi.json
 cloud.json
-firmware.1.2.a12300bf890152d7f522dedf98d47016.bin
+firmware.*.bin

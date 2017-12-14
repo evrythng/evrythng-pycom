@@ -5,7 +5,7 @@ version="$(echo -e "${version}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$
 
 filename_temp=$(mktemp /tmp/firmware.XXXXXXXXX)
 
-find . -name "*.py" -o -name "*.html" | sed -e 's,^\./,,' | tar cvf $filename_temp -T -
+find . ! -name "post-upgrade.py" -a -name "*.py" -o -name "*.html" | sed -e 's,^\./,,' | tar cvf $filename_temp -T -
 
 machine=`uname`
 if [ "$machine" == "Linux" ]; then
