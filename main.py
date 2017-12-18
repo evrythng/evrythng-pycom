@@ -4,7 +4,7 @@ import provision
 import ota_upgrade
 from reset import ResetButton
 
-ResetButton('P14')
+ResetButton('P19')
 
 provision.check_and_start_provisioning_mode()
 
