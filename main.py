@@ -26,18 +26,27 @@ gc.collect()
 from time import sleep
 from _thread import start_new_thread
 from math import floor
-from machine import WDT, Timer
+from machine import WDT, Timer, Pin
 from notification_queue import NotificationQueue
 from accelerometer_sensor import VibrationSensor
 from ambient_sensor import AmbientSensor
 from dispatcher import CloudDispatcher
 from http_notifier import HttpNotifier
+from sigfox_notifier import SigfoxNotifier
 from version import version
 
 
 wdt = WDT(timeout=25000)  # enable it with a timeout of 25 seconds
 queue = NotificationQueue()
-notifier = HttpNotifier(config.cloud_config['thng_id'], config.cloud_config['api_key'])
+
+wireless_selector = Pin('P20', mode=Pin.IN, pull=Pin.PULL_DOWN)
+if wireless_selector():
+    print('Sigfox notifier selected')
+    notifier = SigfoxNotifier()
+else:
+    print('HTTP notifier selected')
+    notifier = HttpNotifier(config.cloud_config['thng_id'], config.cloud_config['api_key'])
+
 dispatcher = CloudDispatcher(queue, [notifier])
 ambient = AmbientSensor(queue, 90)
 uptimer = Timer.Chrono()
