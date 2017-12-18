@@ -1,12 +1,9 @@
-import pycom
-import time
 import gc
+import led
+from time import sleep
 from machine import Timer
 from LIS2HH12 import LIS2HH12
 from micropython import const
-
-led_red = (lambda: pycom.rgbled(0x440000))
-led_green = (lambda: pycom.rgbled(0x004400))
 
 
 class VibrationSensor:
@@ -23,9 +20,9 @@ class VibrationSensor:
         # to avoid all zeros reading
         self._accel_sensor = LIS2HH12()
         self._accel_sensor.acceleration()
-        time.sleep(.5)
+        sleep(.5)
         self._v_last = (x, y, z) = self._accel_sensor.acceleration()
-        led_green()
+        led.green()
 
     def cycle(self):
         v_current = (x, y, z) = self._accel_sensor.acceleration()
@@ -35,7 +32,7 @@ class VibrationSensor:
 
         if any(diffs):
             if not self._v_detected:
-                led_red()
+                led.red()
                 self._v_detected = True
                 self._chrono.start()
             self._t_v_last = self._chrono.read()
@@ -54,7 +51,7 @@ class VibrationSensor:
                 self._chrono.reset()
                 self._v_detected = False
                 self._in_use = False
-                led_green()
+                led.green()
                 if t - diff > self._t_v_min:
                     print('DETECTED VIBRATION FOR {} SEC (MIN {} SEC)'
                           .format(t - diff, self._t_v_min))
@@ -63,5 +60,5 @@ class VibrationSensor:
     def loop_forever(self):
         while True:
             self.cycle()
-            time.sleep(.1)
+            sleep(.1)
             gc.collect()

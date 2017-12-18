@@ -1,11 +1,8 @@
-import machine
-from machine import Timer
-from machine import Pin
+from machine import reset, Timer, Pin
 from provision import enter_provisioning_mode
 
 
 class ResetButton:
-
     def __init__(self, pin):
         self._pin = Pin(pin, mode=Pin.IN, pull=Pin.PULL_UP)
         self._pin.callback(Pin.IRQ_FALLING, self._pin_handler)
@@ -26,7 +23,7 @@ class ResetButton:
         else:
             self._pressed = 0
             alarm.cancel()
-            machine.reset()
+            reset()
 
     def _pin_handler(self, pin):
         # print('got an interrupt on pin {}, value {}'.format(pin.id(), pin.value()))

@@ -1,28 +1,18 @@
-# boot.py -- run on boot-up
 import os
-import pycom
-import config
-import provision
-# from upgrade import sd_upgrade
-from machine import UART
-from reset import ResetButton
+import shutil
+import machine
 
-ResetButton('P14')
-
-pycom.heartbeat(False)
-
-uart = UART(0, 115200)
+uart = machine.UART(0, 115200)
 os.dupterm(uart)
 
-# sd_upgrade()
-
-provision.check_and_start_provisioning_mode()
-
 try:
-    config.read_configs()
-except config.InvalidWifiConfigException:
-    print('reading wifi config failed, starting provisioning mode')
-    provision.start_provisioning_server()
-except config.InvalidCloudConfigException:
-    print('reading cloud config failed, starting provisioning mode')
-    provision.start_provisioning_server()
+    # check if upgrade did not finish successfully
+    os.stat(shutil.upgrade_in_progress_flag_path)
+except Exception:
+    pass
+else:
+    print('incomplete upgrade detected, restoring previous firmware...')
+    shutil.copy_fw_files(shutil.previous_fw_dir, shutil.current_fw_dir)
+    print('done, rebooting...')
+    os.unlink(shutil.upgrade_in_progress_flag_path)
+    machine.reset()

@@ -1,6 +1,6 @@
 import os
 import gc
-import pycom
+import led
 import machine
 import usocket as socket
 import ujson as json
@@ -64,7 +64,7 @@ def handle_provision_request(request, data):
     f.write(json.dumps(prov_data))
     f.close()
 
-    reset_sec = 3
+    reset_sec = 5
     print('resetting board in {} sec'.format(reset_sec))
     Timer.Alarm(reset_timer_handler, reset_sec, periodic=False)
 
@@ -136,7 +136,7 @@ def enter_provisioning_mode():
 def start_provisioning_server():
     global index_content
 
-    pycom.heartbeat(True)
+    led.blink_blue()
 
     wlan = WLAN()
     wlan.init(mode=WLAN.STA_AP, ssid='appliance-sensor',
