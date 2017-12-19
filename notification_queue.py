@@ -45,9 +45,9 @@ class NotificationQueue:
         self._push(Notification(type=NotificationQueue.UPTIME,
                                 data='{}h {}m {}s'.format(uptime_hours, uptime_min, uptime_sec)))
 
-    def push_ambient(self, temperature, humidity, pressure):
+    def push_ambient(self, temperature, humidity, pressure, voltage):
         self._push(Notification(type=NotificationQueue.AMBIENT,
-                                data=(temperature, humidity, pressure)))
+                                data=(temperature, humidity, pressure, voltage)))
 
     def __len__(self):
         return len(self._deque)

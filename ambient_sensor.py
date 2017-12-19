@@ -1,3 +1,4 @@
+from pysense import Pysense
 from math import pow
 from MPL3115A2 import MPL3115A2
 from SI7006A20 import SI7006A20
@@ -11,6 +12,7 @@ class AmbientSensor:
         self._queue = queue
         self._period = period
         self._temp_calib = 5.5
+        self._ps = Pysense()
         Timer.Alarm(self._timer_handler, period, periodic=True)
 
     def _timer_handler(self, alarm):
@@ -20,4 +22,7 @@ class AmbientSensor:
         pressure_sensor = self._dev_mpl.pressure()
         temp_calib = temp_sensor - self._temp_calib
         humidity_calib = humidity_sensor / (pow(.95, self._temp_calib))
-        self._queue.push_ambient(temp_calib, humidity_calib, pressure_sensor)
+        self._queue.push_ambient(temp_calib,
+                                 humidity_calib,
+                                 pressure_sensor,
+                                 self._ps.read_battery_voltage())

@@ -1,7 +1,7 @@
+import math
 import time
 import struct
 from machine import Pin
-from micropython import const
 
 
 FULL_SCALE_2G = const(0)
@@ -17,7 +17,6 @@ ODR_400_HZ = const(5)
 ODR_800_HZ = const(6)
 
 ACC_G_DIV = 1000 * 65536
-
 
 class LIS2HH12:
 
@@ -38,7 +37,7 @@ class LIS2HH12:
     ACT_THS = const(0x1E)
     ACT_DUR = const(0x1F)
 
-    def __init__(self, pysense=None, sda='P22', scl='P21'):
+    def __init__(self, pysense = None, sda = 'P22', scl = 'P21'):
         if pysense is not None:
             self.i2c = pysense.i2c
         else:
@@ -58,7 +57,7 @@ class LIS2HH12:
         self.scales = {FULL_SCALE_2G: 4000, FULL_SCALE_4G: 8000, FULL_SCALE_8G: 16000}
         self.odrs = [0, 10, 50, 100, 200, 400, 800]
 
-        whoami = self.i2c.readfrom_mem(ACC_I2CADDR, PRODUCTID_REG, 1)
+        whoami = self.i2c.readfrom_mem(ACC_I2CADDR , PRODUCTID_REG, 1)
         if (whoami[0] != 0x41):
             raise ValueError("LIS2HH12 not found")
 
@@ -69,35 +68,45 @@ class LIS2HH12:
         self.set_full_scale(FULL_SCALE_4G)
 
         # set the interrupt pin as active low and open drain
-        self.i2c.readfrom_mem_into(ACC_I2CADDR, CTRL5_REG, self.reg)
+        self.i2c.readfrom_mem_into(ACC_I2CADDR , CTRL5_REG, self.reg)
         self.reg[0] |= 0b00000011
-        self.i2c.writeto_mem(ACC_I2CADDR, CTRL5_REG, self.reg)
+        self.i2c.writeto_mem(ACC_I2CADDR , CTRL5_REG, self.reg)
 
         # make a first read
         self.acceleration()
 
     def acceleration(self):
-        x = self.i2c.readfrom_mem(ACC_I2CADDR, ACC_X_L_REG, 2)
+        x = self.i2c.readfrom_mem(ACC_I2CADDR , ACC_X_L_REG, 2)
         self.x = struct.unpack('<h', x)
-        y = self.i2c.readfrom_mem(ACC_I2CADDR, ACC_Y_L_REG, 2)
+        y = self.i2c.readfrom_mem(ACC_I2CADDR , ACC_Y_L_REG, 2)
         self.y = struct.unpack('<h', y)
-        z = self.i2c.readfrom_mem(ACC_I2CADDR, ACC_Z_L_REG, 2)
+        z = self.i2c.readfrom_mem(ACC_I2CADDR , ACC_Z_L_REG, 2)
         self.z = struct.unpack('<h', z)
         _mult = self.scales[self.full_scale] / ACC_G_DIV
         return (self.x[0] * _mult, self.y[0] * _mult, self.z[0] * _mult)
 
+    def roll(self):
+        x,y,z = self.acceleration()
+        rad = math.atan2(-x, z)
+        return (180 / math.pi) * rad
+
+    def pitch(self):
+        x,y,z = self.acceleration()
+        rad = -math.atan2(y, (math.sqrt(x*x + z*z)))
+        return (180 / math.pi) * rad
+
     def set_full_scale(self, scale):
-        self.i2c.readfrom_mem_into(ACC_I2CADDR, CTRL4_REG, self.reg)
+        self.i2c.readfrom_mem_into(ACC_I2CADDR , CTRL4_REG, self.reg)
         self.reg[0] &= ~0b00110000
         self.reg[0] |= (scale & 3) << 4
-        self.i2c.writeto_mem(ACC_I2CADDR, CTRL4_REG, self.reg)
+        self.i2c.writeto_mem(ACC_I2CADDR , CTRL4_REG, self.reg)
         self.full_scale = scale
 
     def set_odr(self, odr):
-        self.i2c.readfrom_mem_into(ACC_I2CADDR, CTRL1_REG, self.reg)
+        self.i2c.readfrom_mem_into(ACC_I2CADDR , CTRL1_REG, self.reg)
         self.reg[0] &= ~0b01110000
         self.reg[0] |= (odr & 7) << 4
-        self.i2c.writeto_mem(ACC_I2CADDR, CTRL1_REG, self.reg)
+        self.i2c.writeto_mem(ACC_I2CADDR , CTRL1_REG, self.reg)
         self.odr = odr
 
     def enable_activity_interrupt(self, threshold, duration, handler=None):
@@ -107,13 +116,13 @@ class LIS2HH12:
         _ths = int((threshold * self.scales[self.full_scale]) / 2000 / 128) & 0x7F
         _dur = int((duration * self.odrs[self.odr]) / 1000 / 8)
 
-        self.i2c.writeto_mem(ACC_I2CADDR, ACT_THS, _ths)
-        self.i2c.writeto_mem(ACC_I2CADDR, ACT_DUR, _dur)
+        self.i2c.writeto_mem(ACC_I2CADDR , ACT_THS, _ths)
+        self.i2c.writeto_mem(ACC_I2CADDR , ACT_DUR, _dur)
 
         # enable the activity/inactivity interrupt
-        self.i2c.readfrom_mem_into(ACC_I2CADDR, CTRL3_REG, self.reg)
+        self.i2c.readfrom_mem_into(ACC_I2CADDR , CTRL3_REG, self.reg)
         self.reg[0] |= 0b00100000
-        self.i2c.writeto_mem(ACC_I2CADDR, CTRL3_REG, self.reg)
+        self.i2c.writeto_mem(ACC_I2CADDR , CTRL3_REG, self.reg)
 
         self._user_handler = handler
         self.int_pin = Pin('P13', mode=Pin.IN)

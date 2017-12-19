@@ -17,7 +17,7 @@ class HttpNotifier():
         self._thng_id = thng_id
         self._http_headers = {'Content-Type': 'application/json', 'Authorization': api_key}
 
-        self._wlan = WLAN(mode=WLAN.STA)
+        self._wlan = WLAN(mode=WLAN.STA, power_save=True)
         nets = self._wlan.scan()
 
         print('WLAN: scanned networks: {}'.format([net.ssid for net in nets]))
@@ -90,7 +90,8 @@ class HttpNotifier():
             self._send_props([
                 {'key': 'temperature', 'value': notification.data[0]},
                 {'key': 'humidity', 'value': notification.data[1]},
-                {'key': 'pressure', 'value': notification.data[2]}
+                {'key': 'pressure', 'value': notification.data[2]},
+                {'key': 'battery_voltage', 'value': notification.data[3]}
             ])
 
         elif notification.type == NotificationQueue.VERSION:
