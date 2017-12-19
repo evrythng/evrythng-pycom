@@ -17,7 +17,7 @@ class HttpNotifier():
         self._thng_id = thng_id
         self._http_headers = {'Content-Type': 'application/json', 'Authorization': api_key}
 
-        self._wlan = WLAN(mode=WLAN.STA, power_save=True)
+        self._wlan = WLAN(mode=WLAN.STA)
         nets = self._wlan.scan()
 
         print('WLAN: scanned networks: {}'.format([net.ssid for net in nets]))
