@@ -13,7 +13,7 @@ class AmbientSensor:
         self._period = period
         self._temp_calib = 5.5
         self._ps = Pysense()
-        Timer.Alarm(self._timer_handler, period, periodic=True)
+        # Timer.Alarm(self._timer_handler, period, periodic=True)
 
     def _timer_handler(self, alarm):
         # temp_sensor = self._dev_si.temperature()

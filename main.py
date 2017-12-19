@@ -2,6 +2,7 @@ import gc
 import config
 import provision
 import ota_upgrade
+import pysense
 from reset import ResetButton
 
 ResetButton('P14')
@@ -35,36 +36,20 @@ from http_notifier import HttpNotifier
 from version import version
 
 
-wdt = WDT(timeout=25000)  # enable it with a timeout of 25 seconds
+# wdt = WDT(timeout=25000)  # enable it with a timeout of 25 seconds
 queue = NotificationQueue()
 notifier = HttpNotifier(config.cloud_config['thng_id'], config.cloud_config['api_key'])
 dispatcher = CloudDispatcher(queue, [notifier])
 ambient = AmbientSensor(queue, 90)
-uptimer = Timer.Chrono()
+ambient._timer_handler(None)
+# uptimer = Timer.Chrono()
 
-start_new_thread(VibrationSensor(queue).loop_forever, tuple())
+# start_new_thread(VibrationSensor(queue).loop_forever, tuple())
 
-uptimer.start()
+# uptimer.start()
 queue.push_version(version)
 
-uptime_counter = uptime_period = 120 * 10
-firmware_counter = firmware_period = 120 * 10
-
+dispatcher.cycle()
 print('free memory: {}'.format(gc.mem_free()))
-while True:
-    wdt.feed()
-    dispatcher.cycle()
-    sleep(.1)
-
-    uptime_counter -= 1
-    if not uptime_counter:
-        print('free memory: {}'.format(gc.mem_free()))
-        queue.push_uptime(floor(uptimer.read()))
-        uptime_counter = uptime_period
-
-    firmware_counter -= 1
-    if not firmware_counter:
-        ota_upgrade.check_and_upgrade_if_needed(
-            config.cloud_config['thng_id'],
-            config.cloud_config['api_key'])
-        firmware_counter = firmware_period
+ota_upgrade.check_and_upgrade_if_needed(config.cloud_config['thng_id'],
+                                        config.cloud_config['api_key'])
