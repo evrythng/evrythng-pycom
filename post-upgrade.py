@@ -128,7 +128,7 @@ def cleanup():
 
 
 def usage():
-    print('{} -k <api_key> -t <thng_id>'.format(sys.argv[0]))
+    print('{} -o <operator_api_key> -d <device_api_key -t <thng_id>'.format(sys.argv[0]))
 
 
 if __name__ == "__main__":
