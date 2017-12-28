@@ -88,6 +88,38 @@ def handle_scan_request(request, data):
     return ok(content_type='application/json', content=json_str)
 
 
+def handle_connectivity_request(request, data):
+    if request != 'GET':
+        return method_not_allowed()
+
+    s = set()
+    s.add('Wifi')
+
+    try:
+        from network import LoRa
+    except ImportError:
+        pass
+    else:
+        s.add('LoRa')
+
+    try:
+        from network import Sigfox
+    except ImportError:
+        pass
+    else:
+        s.add('Sigfox')
+
+    try:
+        from network import LTE
+    except ImportError:
+        pass
+    else:
+        s.add('LTE')
+
+    json_str = json.dumps(list(s))
+    return ok(content_type='application/json', content=json_str)
+
+
 def handle_root_request(request, data):
     if request != 'GET':
         return method_not_allowed()
@@ -97,7 +129,8 @@ def handle_root_request(request, data):
 routes = {
     '/': handle_root_request,
     '/provision': handle_provision_request,
-    '/scan': handle_scan_request
+    '/scan': handle_scan_request,
+    '/connectivity': handle_connectivity_request
 }
 
 
