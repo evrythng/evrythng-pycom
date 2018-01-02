@@ -1,4 +1,4 @@
-import _thread
+from _thread import allocate_lock
 from deque import deque
 from ucollections import namedtuple
 
@@ -8,13 +8,14 @@ Notification = namedtuple('Notification', 'type data')
 class NotificationQueue:
     VIBRATION_STARTED = 1
     VIBRATION_STOPPED = 2
-    BATTERY_VOLTAGE = 3
-    UPTIME = 4
-    TEMPERATURE = 5
+    UPTIME = 3
+    AMBIENT = 4
+    VERSION = 5
+    MAGNITUDE = 6
 
     def __init__(self):
         self._deque = deque()
-        self._lock = _thread.allocate_lock()
+        self._lock = allocate_lock()
 
     def _push(self, notification):
         with self._lock:
@@ -33,8 +34,8 @@ class NotificationQueue:
     def push_vibration_stopped(self, duration):
         self._push(Notification(type=NotificationQueue.VIBRATION_STOPPED, data=int(duration)))
 
-    def push_battery_voltage(self, voltage):
-        self._push(Notification(type=NotificationQueue.BATTERY_VOLTAGE, data=voltage))
+    def push_version(self, version):
+        self._push(Notification(type=NotificationQueue.VERSION, data=version))
 
     def push_uptime(self, uptime_sec):
         # uptime_sec = uptime_ms // 1000
@@ -45,8 +46,15 @@ class NotificationQueue:
         self._push(Notification(type=NotificationQueue.UPTIME,
                                 data='{}h {}m {}s'.format(uptime_hours, uptime_min, uptime_sec)))
 
-    def push_temperature(self, temperature):
-        self._push(Notification(type=NotificationQueue.TEMPERATURE, data=temperature))
+    def push_ambient(self, temperature, humidity, pressure, voltage):
+        self._push(Notification(type=NotificationQueue.AMBIENT,
+                                data=(temperature, humidity, pressure, voltage)))
+
+    def push_mangnitudes(self, mangitudes):
+        if not mangitudes:
+            return
+        self._push(Notification(type=NotificationQueue.MAGNITUDE,
+                                data='{}'.format(mangitudes)))
 
     def __len__(self):
         return len(self._deque)

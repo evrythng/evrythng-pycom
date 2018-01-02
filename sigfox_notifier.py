@@ -16,16 +16,17 @@ class SigfoxNotifier():
             binascii.hexlify(self._sigfox.pac()),
             binascii.hexlify(self._sigfox.id())))
 
-    def handle_notification(self, notification):
+    def handle_notifications(self, notifications):
         # self._socket.send(bytes([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]))
-        if notification.type == NotificationQueue.VIBRATION_STARTED:
-            pass
-        elif notification.type == NotificationQueue.VIBRATION_STOPPED:
-            print('sigfox vibration duration: {}'.format(notification.data))
-            self._socket.send(notification.data.to_bytes(8))
-        elif NotificationQueue.BATTERY_VOLTAGE:
-            pass
-        elif NotificationQueue.UPTIME:
-            pass
-        else:
-            print('unsupported event {}'.format(notification.type))
+        for n in notifications:
+            if n.type == NotificationQueue.VIBRATION_STARTED:
+                pass
+            elif n.type == NotificationQueue.VIBRATION_STOPPED:
+                print('sigfox vibration duration: {}'.format(n.data))
+                self._socket.send(n.data.to_bytes(8))
+            elif NotificationQueue.BATTERY_VOLTAGE:
+                pass
+            elif NotificationQueue.UPTIME:
+                pass
+            else:
+                print('unsupported event {}'.format(n.type))
