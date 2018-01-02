@@ -46,7 +46,7 @@ class VibrationSensor:
             self._t_v_last = self._chrono.read()
 
             t = (self._chrono.read(), x, y, z)
-            print('t:{}, x:{}, y:{}, z:{}'.format(t[0], t[1], t[2], t[3]))
+            # print('t:{}, x:{}, y:{}, z:{}'.format(t[0], t[1], t[2], t[3]))
             self._magnitudes.append(t)
             if (t[0] > 60 * self._minutes):  # send magnitudes each 60 seconds to avoid overflow
                 self._queue.push_mangnitudes(self._magnitudes)

@@ -11,7 +11,7 @@ class AmbientSensor:
         self._dev_si = SI7006A20()
         self._queue = queue
         self._period = period
-        self._temp_calib = 7.5
+        self._temp_calib = 5
         self._ps = Pysense()
         Timer.Alarm(self._timer_handler, period, periodic=True)
 
