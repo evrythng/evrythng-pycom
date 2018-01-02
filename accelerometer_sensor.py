@@ -23,6 +23,7 @@ class VibrationSensor:
         sleep(.5)
         self._v_last = (x, y, z) = self._accel_sensor.acceleration()
         self._magnitudes = []
+        self._minutes = 1
         led.green()
 
     def cycle(self):
@@ -35,6 +36,7 @@ class VibrationSensor:
         if any(flags):
             if not self._v_detected:
                 led.red()
+                self._minutes = 1
                 self._v_detected = True
                 self._chrono.start()
                 self._magnitudes[:] = []
@@ -46,6 +48,10 @@ class VibrationSensor:
             t = (self._chrono.read(), x, y, z)
             print('t:{}, x:{}, y:{}, z:{}'.format(t[0], t[1], t[2], t[3]))
             self._magnitudes.append(t)
+            if (t[0] > 60 * self._minutes):  # send magnitudes each 60 seconds to avoid overflow
+                self._queue.push_mangnitudes(self._magnitudes)
+                self._magnitudes[:] = []
+                self._minutes += 1
 
             if self._t_v_last > self._t_v_min and not self._in_use:
                 self._queue.push_vibration_started()

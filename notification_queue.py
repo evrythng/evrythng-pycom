@@ -51,6 +51,8 @@ class NotificationQueue:
                                 data=(temperature, humidity, pressure, voltage)))
 
     def push_mangnitudes(self, mangitudes):
+        if not mangitudes:
+            return
         self._push(Notification(type=NotificationQueue.MAGNITUDE,
                                 data='{}'.format(mangitudes)))
 
