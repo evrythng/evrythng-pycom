@@ -11,6 +11,7 @@ class NotificationQueue:
     UPTIME = 3
     AMBIENT = 4
     VERSION = 5
+    MAGNITUDE = 6
 
     def __init__(self):
         self._deque = deque()
@@ -48,6 +49,10 @@ class NotificationQueue:
     def push_ambient(self, temperature, humidity, pressure, voltage):
         self._push(Notification(type=NotificationQueue.AMBIENT,
                                 data=(temperature, humidity, pressure, voltage)))
+
+    def push_mangnitudes(self, mangitudes):
+        self._push(Notification(type=NotificationQueue.MAGNITUDE,
+                                data=mangitudes))
 
     def __len__(self):
         return len(self._deque)

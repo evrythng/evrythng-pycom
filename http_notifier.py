@@ -97,5 +97,13 @@ class HttpNotifier():
         elif notification.type == NotificationQueue.VERSION:
             self._send_props([{'key': 'version', 'value': notification.data}])
 
+        elif notification.type == NotificationQueue.MAGNITUDE:
+            if not len(notification.data):
+                return
+            props = []
+            for v, t in notification.data:
+                props.append({'key': 'magnitude', 'value': v, 'timestamp': t})
+            self._send_props(props)
+
         else:
             print('unsupported event {}'.format(notification.type))

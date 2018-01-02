@@ -22,20 +22,27 @@ class VibrationSensor:
         self._accel_sensor.acceleration()
         sleep(.5)
         self._v_last = (x, y, z) = self._accel_sensor.acceleration()
+        self._magnitudes = []
         led.green()
 
     def cycle(self):
         v_current = (x, y, z) = self._accel_sensor.acceleration()
         # print('({0:.2f}, {1:.2f}, {2:.2f})'.format(abs(x), abs(y), abs(z)))
-        diffs = [abs(i - j) > self._v_delta for i, j in zip(v_current, self._v_last)]
+        pairs = zip(v_current, self._v_last)
+        diffs = [abs(i - j) for i, j in pairs]
+        flags = [i > self._v_delta for i in diffs]
         self._v_last = v_current
 
-        if any(diffs):
+        if any(flags):
             if not self._v_detected:
                 led.red()
                 self._v_detected = True
                 self._chrono.start()
+                self._magnitudes[:] = []
             self._t_v_last = self._chrono.read()
+
+            self._magnitudes.append((max(diffs), self._chrono.read()))
+            print('max abs: {}'.format(max(diffs)))
 
             if self._t_v_last > self._t_v_min and not self._in_use:
                 self._queue.push_vibration_started()
@@ -56,6 +63,7 @@ class VibrationSensor:
                     print('DETECTED VIBRATION FOR {} SEC (MIN {} SEC)'
                           .format(t - diff, self._t_v_min))
                     self._queue.push_vibration_stopped(t - diff)
+                    self._queue.push_mangnitudes(self._magnitudes)
 
     def loop_forever(self):
         while True:
