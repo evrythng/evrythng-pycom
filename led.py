@@ -59,3 +59,7 @@ def green():
 
 def red():
     solid(RGB_RED)
+
+
+def blue():
+    solid(RGB_BLUE)
