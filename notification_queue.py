@@ -52,7 +52,7 @@ class NotificationQueue:
 
     def push_mangnitudes(self, mangitudes):
         self._push(Notification(type=NotificationQueue.MAGNITUDE,
-                                data=mangitudes))
+                                data='{}'.format(mangitudes)))
 
     def __len__(self):
         return len(self._deque)

@@ -31,7 +31,6 @@ class VibrationSensor:
         pairs = zip(v_current, self._v_last)
         diffs = [abs(i - j) for i, j in pairs]
         flags = [i > self._v_delta for i in diffs]
-        self._v_last = v_current
 
         if any(flags):
             if not self._v_detected:
@@ -39,10 +38,14 @@ class VibrationSensor:
                 self._v_detected = True
                 self._chrono.start()
                 self._magnitudes[:] = []
+                self._magnitudes.append((0, self._v_last[0],
+                                         self._v_last[1],
+                                         self._v_last[2]))
             self._t_v_last = self._chrono.read()
 
-            self._magnitudes.append((max(diffs), self._chrono.read()))
-            print('max abs: {}'.format(max(diffs)))
+            t = (self._chrono.read(), x, y, z)
+            print('t:{}, x:{}, y:{}, z:{}'.format(t[0], t[1], t[2], t[3]))
+            self._magnitudes.append(t)
 
             if self._t_v_last > self._t_v_min and not self._in_use:
                 self._queue.push_vibration_started()
@@ -64,6 +67,8 @@ class VibrationSensor:
                           .format(t - diff, self._t_v_min))
                     self._queue.push_vibration_stopped(t - diff)
                     self._queue.push_mangnitudes(self._magnitudes)
+
+        self._v_last = v_current
 
     def loop_forever(self):
         while True:

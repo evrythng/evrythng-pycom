@@ -47,18 +47,18 @@ start_new_thread(VibrationSensor(queue).loop_forever, tuple())
 uptimer.start()
 queue.push_version(version)
 
+dispatcher_counter = dispatcher_period = 1 * 10
 uptime_counter = uptime_period = 120 * 10
-firmware_counter = firmware_period = 120 * 10
+firmware_counter = firmware_period = 300 * 10
 
-print('free memory: {}'.format(gc.mem_free()))
 while True:
-    wdt.feed()
-    dispatcher.cycle()
-    sleep(.1)
+    dispatcher_counter -= 1
+    if not dispatcher_counter:
+        dispatcher.cycle()
+        dispatcher_counter = dispatcher_period
 
     uptime_counter -= 1
     if not uptime_counter:
-        print('free memory: {}'.format(gc.mem_free()))
         queue.push_uptime(floor(uptimer.read()))
         uptime_counter = uptime_period
 
@@ -68,3 +68,6 @@ while True:
             config.cloud_config['thng_id'],
             config.cloud_config['api_key'])
         firmware_counter = firmware_period
+
+    wdt.feed()
+    sleep(.1)
