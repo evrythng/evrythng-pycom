@@ -47,9 +47,9 @@ start_new_thread(VibrationSensor(queue).loop_forever, tuple())
 uptimer.start()
 queue.push_version(version)
 
-dispatcher_counter = dispatcher_period = 1 * 10
-uptime_counter = uptime_period = 120 * 10
-firmware_counter = firmware_period = 300 * 10
+dispatcher_counter = dispatcher_period = 2 * 10
+uptime_counter = uptime_period = 180 * 10
+firmware_counter = firmware_period = 420 * 10
 
 while True:
     dispatcher_counter -= 1
