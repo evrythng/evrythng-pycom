@@ -68,39 +68,46 @@ class HttpNotifier():
     def _send_actions(self, data):
         for action in data:
             self._send(method='POST',
-                       url='https://api.evrythng.com/thngs/{}/actions/{}'.format(
-                           self._thng_id, action['type']),
+                       url='https://api.evrythng.com/thngs/{}/actions/all'.format(self._thng_id),
                        json=action)
 
-    def handle_notification(self, notification):
-        if notification.type == NotificationQueue.VIBRATION_STARTED:
-            self._send_props([{'key': 'in_use', 'value': True}])
-            self._send_actions([{'type': '_appliance_started'}])
-            # pass
-        elif notification.type == NotificationQueue.VIBRATION_STOPPED:
-            self._send_props([{'key': 'in_use', 'value': False},
-                              {'key': 'last_use', 'value': notification.data}])
-            #  self._send_props([{'key': 'in_use', 'value': notification.data}])
-            self._send_actions([{'type': '_appliance_stopped'}])
+    def handle_notifications(self, notifications):
+        properties = []
+        actions = []
+        for n in notifications:
+            if n.type == NotificationQueue.VIBRATION_STARTED:
+                properties.append({'key': 'in_use', 'value': True})
+                actions.append({'type': '_appliance_started'})
+                # pass
+            elif n.type == NotificationQueue.VIBRATION_STOPPED:
+                properties.extend([{'key': 'in_use', 'value': False},
+                                   {'key': 'last_use', 'value': n.data}])
+                #  self._send_props([{'key': 'in_use', 'value': notification.data}])
+                actions.append({'type': '_appliance_stopped'})
 
-        elif notification.type == NotificationQueue.UPTIME:
-            self._send_props([{'key': 'uptime', 'value': notification.data}])
+            elif n.type == NotificationQueue.UPTIME:
+                properties.append({'key': 'uptime', 'value': n.data})
 
-        elif notification.type == NotificationQueue.AMBIENT:
-            self._send_props([
-                {'key': 'temperature', 'value': notification.data[0]},
-                {'key': 'humidity', 'value': notification.data[1]},
-                {'key': 'pressure', 'value': notification.data[2]},
-                {'key': 'battery_voltage', 'value': notification.data[3]}
-            ])
+            elif n.type == NotificationQueue.AMBIENT:
+                properties.extend([
+                    {'key': 'temperature', 'value': n.data[0]},
+                    {'key': 'humidity', 'value': n.data[1]},
+                    {'key': 'pressure', 'value': n.data[2]},
+                    {'key': 'battery_voltage', 'value': n.data[3]}
+                ])
 
-        elif notification.type == NotificationQueue.VERSION:
-            self._send_props([{'key': 'version', 'value': notification.data}])
+            elif n.type == NotificationQueue.VERSION:
+                properties.append({'key': 'version', 'value': n.data})
 
-        elif notification.type == NotificationQueue.MAGNITUDE:
-            if not len(notification.data):
-                return
-            self._send_props([{'key': 'magnitude', 'value': notification.data}])
+            elif n.type == NotificationQueue.MAGNITUDE:
+                if not len(n.data):
+                    return
+                properties.append({'key': 'magnitude', 'value': n.data})
 
-        else:
-            print('unsupported event {}'.format(notification.type))
+            else:
+                print('unsupported event {}'.format(n.type))
+
+        if actions:
+            self._send_actions(actions)
+        if properties:
+            self._send_props(properties)

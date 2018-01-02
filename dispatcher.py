@@ -10,11 +10,9 @@ class CloudDispatcher:
 
     def cycle(self):
         notifications = self._queue.pop()
-
         for n in self._notifiers:
-            for e in notifications:
-                n.handle_notification(e)
-                gc.collect()
+            n.handle_notifications(notifications)
+            gc.collect()
 
     def loop_forever(self):
         while True:
