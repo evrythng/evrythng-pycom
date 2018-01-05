@@ -1,14 +1,26 @@
 import gc
+import math
+import machine
 import config
 import provision
 import ota_upgrade
-import pysense
-from reset import ResetButton
+import pycom
+import time
+from _thread import start_new_thread
+from pysense import Pysense
 
+from notification_queue import NotificationQueue
+from accelerometer_sensor import VibrationSensor
+from ambient_sensor import AmbientSensor
+from dispatcher import CloudDispatcher
+from http_notifier import HttpNotifier
+from reset import ResetButton
+from version import version
+
+'''
 ResetButton('P14')
 
 provision.check_and_start_provisioning_mode()
-
 try:
     config.read_configs()
 except config.InvalidWifiConfigException:
@@ -23,20 +35,7 @@ finally:
 ota_upgrade.start_upgrade_if_needed()
 gc.collect()
 
-
-from time import sleep
-from _thread import start_new_thread
-from math import floor
-from machine import WDT, Timer
-from notification_queue import NotificationQueue
-from accelerometer_sensor import VibrationSensor
-from ambient_sensor import AmbientSensor
-from dispatcher import CloudDispatcher
-from http_notifier import HttpNotifier
-from version import version
-
-
-# wdt = WDT(timeout=25000)  # enable it with a timeout of 25 seconds
+wdt = machine.WDT(timeout=25000)  # enable it with a timeout of 25 seconds
 queue = NotificationQueue()
 notifier = HttpNotifier(config.cloud_config['thng_id'], config.cloud_config['api_key'])
 dispatcher = CloudDispatcher(queue, [notifier])
@@ -53,23 +52,45 @@ dispatcher_counter = dispatcher_period = 2 * 10
 uptime_counter = uptime_period = 180 * 10
 firmware_counter = firmware_period = 420 * 10
 
-while True:
-    dispatcher_counter -= 1
-    if not dispatcher_counter:
-        dispatcher.cycle()
-        dispatcher_counter = dispatcher_period
 
-    uptime_counter -= 1
-    if not uptime_counter:
-        queue.push_uptime(floor(uptimer.read()))
-        uptime_counter = uptime_period
+dispatcher_counter -= 1
+if not dispatcher_counter:
+    dispatcher.cycle()
+    dispatcher_counter = dispatcher_period
 
-    firmware_counter -= 1
-    if not firmware_counter:
-        ota_upgrade.check_and_upgrade_if_needed(
-            config.cloud_config['thng_id'],
-            config.cloud_config['api_key'])
-        firmware_counter = firmware_period
+uptime_counter -= 1
+if not uptime_counter:
+    queue.push_uptime(floor(uptimer.read()))
+    uptime_counter = uptime_period
 
-    wdt.feed()
-    sleep(.1)
+firmware_counter -= 1
+if not firmware_counter:
+    ota_upgrade.check_and_upgrade_if_needed(
+        config.cloud_config['thng_id'],
+        config.cloud_config['api_key'])
+    firmware_counter = firmware_period
+
+wdt.feed()
+sleep(.1)
+'''
+
+# WAKE_REASON_ACCELEROMETER = 1
+# WAKE_REASON_PUSH_BUTTON = 2
+# WAKE_REASON_TIMER = 4
+# WAKE_REASON_INT_PIN = 8
+
+pycom.heartbeat(False)
+pysense = Pysense()
+
+# enable wakeup source from INT pin
+pysense.setup_int_pin_wake_up(False)
+
+# enable activity and also inactivity interrupts, using the default callback handler
+pysense.setup_int_wake_up(True, True)
+
+print("Wakeup reason: " + str(pysense.get_wake_reason()) +
+      "; Aproximate sleep remaining: " + str(pysense.get_sleep_remaining()) + " sec")
+time.sleep(0.5)
+
+pysense.setup_sleep(30)
+pysense.go_to_sleep()

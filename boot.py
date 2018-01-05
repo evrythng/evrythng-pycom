@@ -16,3 +16,5 @@ else:
     print('done, rebooting...')
     os.unlink(shutil.upgrade_in_progress_flag_path)
     machine.reset()
+
+print('++++++++++++++++ inside boot.py ++++++++++++++++++++++')
