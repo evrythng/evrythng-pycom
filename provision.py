@@ -46,23 +46,28 @@ def ok(content_type=None, content=''):
 def reset_timer_handler(alarm):
     try:
         os.unlink(provisioning_flag_path)
+        os.sync()
     except:
         pass
     machine.reset()
+
+
+def save_wifi_config(config):
+    f = open(wifi_config_path, mode='w')
+    f.write(config)
+    f.close()
 
 
 def handle_provision_request(request, data):
     if request != 'POST':
         return method_not_allowed()
     try:
-        prov_data = json.loads(data)
+        json.loads(data)
     except ValueError as e:
         print('Failed to parse json [{}]: {}'.format(data, e))
         return bad_request()
 
-    f = open(wifi_config_path, 'w')
-    f.write(json.dumps(prov_data))
-    f.close()
+    save_wifi_config(data)
 
     reset_sec = 5
     print('resetting board in {} sec'.format(reset_sec))
@@ -83,6 +88,38 @@ def handle_scan_request(request, data):
     return ok(content_type='application/json', content=json_str)
 
 
+def handle_connectivity_request(request, data):
+    if request != 'GET':
+        return method_not_allowed()
+
+    s = set()
+    s.add('Wifi')
+
+    try:
+        from network import LoRa
+    except ImportError:
+        pass
+    else:
+        s.add('LoRa')
+
+    try:
+        from network import Sigfox
+    except ImportError:
+        pass
+    else:
+        s.add('Sigfox')
+
+    try:
+        from network import LTE
+    except ImportError:
+        pass
+    else:
+        s.add('LTE')
+
+    json_str = json.dumps(list(s))
+    return ok(content_type='application/json', content=json_str)
+
+
 def handle_root_request(request, data):
     if request != 'GET':
         return method_not_allowed()
@@ -92,7 +129,8 @@ def handle_root_request(request, data):
 routes = {
     '/': handle_root_request,
     '/provision': handle_provision_request,
-    '/scan': handle_scan_request
+    '/scan': handle_scan_request,
+    '/connectivity': handle_connectivity_request
 }
 
 
@@ -142,9 +180,11 @@ def start_provisioning_server():
     wlan.init(mode=WLAN.STA_AP, ssid='appliance-sensor',
               auth=(WLAN.WPA2, 'evrythng'), channel=7, antenna=WLAN.INT_ANT)
 
-    f = open(index_page_path, 'r')
+    f = open(index_page_path, mode='r')
     index_content = f.read()
     f.close()
+
+    gc.collect()
 
     s = socket.socket()
 

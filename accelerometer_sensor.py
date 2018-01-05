@@ -22,20 +22,36 @@ class VibrationSensor:
         self._accel_sensor.acceleration()
         sleep(.5)
         self._v_last = (x, y, z) = self._accel_sensor.acceleration()
+        self._magnitudes = []
+        self._minutes = 1
         led.green()
 
     def cycle(self):
         v_current = (x, y, z) = self._accel_sensor.acceleration()
         # print('({0:.2f}, {1:.2f}, {2:.2f})'.format(abs(x), abs(y), abs(z)))
-        diffs = [abs(i - j) > self._v_delta for i, j in zip(v_current, self._v_last)]
-        self._v_last = v_current
+        pairs = zip(v_current, self._v_last)
+        diffs = [abs(i - j) for i, j in pairs]
+        flags = [i > self._v_delta for i in diffs]
 
-        if any(diffs):
+        if any(flags):
             if not self._v_detected:
                 led.red()
+                self._minutes = 1
                 self._v_detected = True
                 self._chrono.start()
+                self._magnitudes[:] = []
+                self._magnitudes.append((0, self._v_last[0],
+                                         self._v_last[1],
+                                         self._v_last[2]))
             self._t_v_last = self._chrono.read()
+
+            t = (self._chrono.read(), x, y, z)
+            # print('t:{}, x:{}, y:{}, z:{}'.format(t[0], t[1], t[2], t[3]))
+            self._magnitudes.append(t)
+            if (t[0] > 60 * self._minutes):  # send magnitudes each 60 seconds to avoid overflow
+                self._queue.push_mangnitudes(self._magnitudes)
+                self._magnitudes[:] = []
+                self._minutes += 1
 
             if self._t_v_last > self._t_v_min and not self._in_use:
                 self._queue.push_vibration_started()
@@ -56,6 +72,9 @@ class VibrationSensor:
                     print('DETECTED VIBRATION FOR {} SEC (MIN {} SEC)'
                           .format(t - diff, self._t_v_min))
                     self._queue.push_vibration_stopped(t - diff)
+                    self._queue.push_mangnitudes(self._magnitudes)
+
+        self._v_last = v_current
 
     def loop_forever(self):
         while True:

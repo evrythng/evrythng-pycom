@@ -11,17 +11,18 @@ class AmbientSensor:
         self._dev_si = SI7006A20()
         self._queue = queue
         self._period = period
-        self._temp_calib = 5.5
+        self._temp_calib = 5
         self._ps = Pysense()
         # Timer.Alarm(self._timer_handler, period, periodic=True)
 
     def _timer_handler(self, alarm):
         # temp_sensor = self._dev_si.temperature()
         temp_sensor = self._dev_mpl.temperature()
-        humidity_sensor = self._dev_si.humidity()
+        # humidity_sensor = self._dev_si.humidity()
         pressure_sensor = self._dev_mpl.pressure()
         temp_calib = temp_sensor - self._temp_calib
-        humidity_calib = humidity_sensor / (pow(.95, self._temp_calib))
+        # humidity_calib = humidity_sensor / (pow(.95, self._temp_calib))
+        humidity_calib = self._dev_si.humid_ambient(temp_calib)
         self._queue.push_ambient(temp_calib,
                                  humidity_calib,
                                  pressure_sensor,
