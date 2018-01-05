@@ -11,6 +11,7 @@ WAKE_REASON_PUSH_BUTTON = 2
 WAKE_REASON_TIMER = 4
 WAKE_REASON_INT_PIN = 8
 
+
 class Pycoproc:
     """ class for handling interraction with PIC MCU """
 
@@ -151,7 +152,8 @@ class Pycoproc:
         self._write(bytes([CMD_POKE, addr & 0xFF, (addr >> 8) & 0xFF, value & 0xFF]))
 
     def magic_write_read(self, addr, _and=0xFF, _or=0, _xor=0):
-        self._write(bytes([CMD_MAGIC, addr & 0xFF, (addr >> 8) & 0xFF, _and & 0xFF, _or & 0xFF, _xor & 0xFF]))
+        self._write(bytes([CMD_MAGIC, addr & 0xFF, (addr >> 8) &
+                           0xFF, _and & 0xFF, _or & 0xFF, _xor & 0xFF]))
         return self._read(1)[0]
 
     def toggle_bits_in_memory(self, addr, bits):
@@ -178,16 +180,18 @@ class Pycoproc:
             self.calibrate_rtc()
         except Exception:
             pass
-        time_s = int((time_device_s / self.clk_cal_factor) + 0.5) # 0.5 used for round
+        time_s = int((time_device_s / self.clk_cal_factor) + 0.5)  # 0.5 used for round
         return time_s
 
     def setup_sleep(self, time_s):
         try:
             self.calibrate_rtc()
+            pass
         except Exception:
             pass
         time_s = int((time_s * self.clk_cal_factor) + 0.5)  # round to the nearest integer
-        self._write(bytes([CMD_SETUP_SLEEP, time_s & 0xFF, (time_s >> 8) & 0xFF, (time_s >> 16) & 0xFF]))
+        self._write(bytes([CMD_SETUP_SLEEP, time_s & 0xFF,
+                           (time_s >> 8) & 0xFF, (time_s >> 16) & 0xFF]))
 
     def go_to_sleep(self, gps=True):
         # enable or disable back-up power to the GPS receiver
@@ -212,13 +216,13 @@ class Pycoproc:
         # check if INT pin (PIC RC1), should be used for wakeup
         if self.wake_int_pin:
             if self.wake_int_pin_rising_edge:
-                self.set_bits_in_memory(OPTION_REG_ADDR, 1 << 6) # rising edge of INT pin
+                self.set_bits_in_memory(OPTION_REG_ADDR, 1 << 6)  # rising edge of INT pin
             else:
-                self.mask_bits_in_memory(OPTION_REG_ADDR, ~(1 << 6)) # falling edge of INT pin
-            self.mask_bits_in_memory(ANSELC_ADDR, ~(1 << 1)) # disable analog function for RC1 pin
-            self.set_bits_in_memory(TRISC_ADDR, 1 << 1) # make RC1 input pin
-            self.mask_bits_in_memory(INTCON_ADDR, ~(1 << 1)) # clear INTF
-            self.set_bits_in_memory(INTCON_ADDR, 1 << 4) # enable interrupt; set INTE)
+                self.mask_bits_in_memory(OPTION_REG_ADDR, ~(1 << 6))  # falling edge of INT pin
+            self.mask_bits_in_memory(ANSELC_ADDR, ~(1 << 1))  # disable analog function for RC1 pin
+            self.set_bits_in_memory(TRISC_ADDR, 1 << 1)  # make RC1 input pin
+            self.mask_bits_in_memory(INTCON_ADDR, ~(1 << 1))  # clear INTF
+            self.set_bits_in_memory(INTCON_ADDR, 1 << 4)  # enable interrupt; set INTE)
 
         self._write(bytes([CMD_GO_SLEEP]), wait=False)
         # kill the run pin
@@ -233,7 +237,9 @@ class Pycoproc:
         self.i2c.deinit()
         Pin('P21', mode=Pin.IN)
         pulses = pycom.pulses_get('P21', 50)
-        self.i2c.init(mode=I2C.MASTER, pins=(self.sda, self.scl))
+        # self.i2c.init(mode=I2C.MASTER, pins=(self.sda, self.scl))
+        self.i2c = I2C(0, mode=I2C.MASTER, pins=(self.sda, self.scl))
+        time.sleep_ms(500)
         try:
             period = pulses[2][1] - pulses[0][1]
         except:
@@ -251,7 +257,8 @@ class Pycoproc:
         while self.peek_memory(ADCON0_ADDR) & _ADCON0_GO_nDONE_MASK:
             time.sleep_us(100)
         adc_val = (self.peek_memory(ADRESH_ADDR) << 2) + (self.peek_memory(ADRESL_ADDR) >> 6)
-        return (((adc_val * 3.3 * 280) / 1023) / 180) + 0.01    # add 10mV to compensate for the drop in the FET
+        # add 10mV to compensate for the drop in the FET
+        return (((adc_val * 3.3 * 280) / 1023) / 180) + 0.01
 
     def setup_int_wake_up(self, rising, falling):
         """ rising is for activity detection, falling for inactivity """
@@ -269,7 +276,7 @@ class Pycoproc:
             self.mask_bits_in_memory(IOCAN_ADDR, ~(1 << 5))
         self.wake_int = wake_int
 
-    def setup_int_pin_wake_up(self, rising_edge = True):
+    def setup_int_pin_wake_up(self, rising_edge=True):
         """ allows wakeup to be made by the INT pin (PIC -RC1) """
         self.wake_int_pin = True
         self.wake_int_pin_rising_edge = rising_edge
