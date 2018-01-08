@@ -17,7 +17,6 @@ from http_notifier import HttpNotifier
 from reset import ResetButton
 from version import version
 
-'''
 ResetButton('P14')
 
 provision.check_and_start_provisioning_mode()
@@ -33,30 +32,22 @@ finally:
     gc.collect()
 
 ota_upgrade.start_upgrade_if_needed()
-gc.collect()
 
-wdt = machine.WDT(timeout=25000)  # enable it with a timeout of 25 seconds
 queue = NotificationQueue()
+ambient = AmbientSensor(queue, 90)
 notifier = HttpNotifier(config.cloud_config['thng_id'], config.cloud_config['api_key'])
 dispatcher = CloudDispatcher(queue, [notifier])
-ambient = AmbientSensor(queue, 90)
-ambient._timer_handler(None)
+
+'''
+wdt = machine.WDT(timeout=25000)  # enable it with a timeout of 25 seconds
 # uptimer = Timer.Chrono()
 
 # start_new_thread(VibrationSensor(queue).loop_forever, tuple())
 
 # uptimer.start()
-queue.push_version(version)
 
-dispatcher_counter = dispatcher_period = 2 * 10
 uptime_counter = uptime_period = 180 * 10
 firmware_counter = firmware_period = 420 * 10
-
-
-dispatcher_counter -= 1
-if not dispatcher_counter:
-    dispatcher.cycle()
-    dispatcher_counter = dispatcher_period
 
 uptime_counter -= 1
 if not uptime_counter:
@@ -71,7 +62,6 @@ if not firmware_counter:
     firmware_counter = firmware_period
 
 wdt.feed()
-sleep(.1)
 '''
 
 # WAKE_REASON_ACCELEROMETER = 1
@@ -79,18 +69,28 @@ sleep(.1)
 # WAKE_REASON_TIMER = 4
 # WAKE_REASON_INT_PIN = 8
 
-pycom.heartbeat(False)
+# pycom.heartbeat(False)
 pysense = Pysense()
 
 # enable wakeup source from INT pin
 pysense.setup_int_pin_wake_up(False)
 
 # enable activity and also inactivity interrupts, using the default callback handler
-pysense.setup_int_wake_up(True, True)
+pysense.setup_int_wake_up(True, False)
 
-print("Wakeup reason: " + str(pysense.get_wake_reason()) +
-      "; Aproximate sleep remaining: " + str(pysense.get_sleep_remaining()) + " sec")
-time.sleep(0.5)
+wake_up_reason = pysense.get_wake_reason()
+print("Wakeup reason: " + wake_up_reason)
+if wake_up_reason == Pysense.WAKE_REASON_TIMER:
+    queue.push_version(version)
+    ambient.push_sensor_values()
 
+'''
 pysense.setup_sleep(30)
 pysense.go_to_sleep()
+'''
+
+dispatcher.cycle()
+
+print('sleeping now')
+while True:
+    machine.idle()
