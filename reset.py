@@ -11,6 +11,12 @@ class ResetButton:
         self._alarm_thres = 3
         self._pressed = 0
 
+    def pressed(self):
+        return self._pressed
+
+    def check(self):
+        self._pin_handler(self._pin)
+
     def _press_handler(self, alarm):
         # if button is still pressed
         if not self._pin():
@@ -18,11 +24,13 @@ class ResetButton:
             print('pressed for {} seconds already'.format(self._pressed))
             if self._pressed >= self._alarm_thres:
                 self._pressed = 0
-                alarm.cancel()
+                if alarm:
+                    alarm.cancel()
                 enter_provisioning_mode()
         else:
             self._pressed = 0
-            alarm.cancel()
+            if alarm:
+                alarm.cancel()
             reset()
 
     def _pin_handler(self, pin):

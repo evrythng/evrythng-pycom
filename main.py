@@ -1,11 +1,12 @@
 import gc
-import math
 import machine
 import config
 import provision
 import ota_upgrade
 import pycom
 import time
+import led
+import pycoproc
 from _thread import start_new_thread
 from pysense import Pysense
 
@@ -16,8 +17,6 @@ from dispatcher import CloudDispatcher
 from http_notifier import HttpNotifier
 from reset import ResetButton
 from version import version
-
-ResetButton('P14')
 
 provision.check_and_start_provisioning_mode()
 try:
@@ -32,11 +31,6 @@ finally:
     gc.collect()
 
 ota_upgrade.start_upgrade_if_needed()
-
-queue = NotificationQueue()
-ambient = AmbientSensor(queue, 90)
-notifier = HttpNotifier(config.cloud_config['thng_id'], config.cloud_config['api_key'])
-dispatcher = CloudDispatcher(queue, [notifier])
 
 '''
 wdt = machine.WDT(timeout=25000)  # enable it with a timeout of 25 seconds
@@ -56,41 +50,57 @@ if not uptime_counter:
 
 firmware_counter -= 1
 if not firmware_counter:
-    ota_upgrade.check_and_upgrade_if_needed(
-        config.cloud_config['thng_id'],
-        config.cloud_config['api_key'])
     firmware_counter = firmware_period
 
 wdt.feed()
 '''
 
-# WAKE_REASON_ACCELEROMETER = 1
-# WAKE_REASON_PUSH_BUTTON = 2
-# WAKE_REASON_TIMER = 4
-# WAKE_REASON_INT_PIN = 8
+queue = NotificationQueue()
 
-# pycom.heartbeat(False)
 pysense = Pysense()
 
+reset_button = ResetButton('P14')
+
 # enable wakeup source from INT pin
-pysense.setup_int_pin_wake_up(False)
+# pysense.setup_int_pin_wake_up(False)
 
 # enable activity and also inactivity interrupts, using the default callback handler
-pysense.setup_int_wake_up(True, False)
+# pysense.setup_int_wake_up(True, False)
 
+notifier = None
+dispatcher = None
 wake_up_reason = pysense.get_wake_reason()
-print("Wakeup reason: " + wake_up_reason)
-if wake_up_reason == Pysense.WAKE_REASON_TIMER:
+
+if wake_up_reason == pycoproc.WAKE_REASON_TIMER:
+    led.red()
+    print('planned wakeup')
+    notifier = HttpNotifier(config.cloud_config['thng_id'], config.cloud_config['api_key'])
+    dispatcher = CloudDispatcher(queue, [notifier])
     queue.push_version(version)
+    ambient = AmbientSensor(queue, pysense)
     ambient.push_sensor_values()
 
-'''
-pysense.setup_sleep(30)
+elif wake_up_reason == pycoproc.WAKE_REASON_PUSH_BUTTON:
+    led.green()
+    print('button pressed wakeup')
+    reset_button.check()
+    while reset_button.pressed():
+        machine.idle()
+
+elif wake_up_reason == pycoproc.WAKE_REASON_ACCELEROMETER:
+    print('accelerator activity wakeup')
+
+elif wake_up_reason == pycoproc.WAKE_REASON_INT_PIN:
+    print('int pin wakeup')
+
+else:
+    led.blue()
+    print('normal start/reset/wdt ({})'.format(machine.wake_reason()))
+
+
+if dispatcher:
+    dispatcher.cycle()
+
+time.sleep(20)
+pysense.setup_sleep(10)
 pysense.go_to_sleep()
-'''
-
-dispatcher.cycle()
-
-print('sleeping now')
-while True:
-    machine.idle()
