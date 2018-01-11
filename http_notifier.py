@@ -23,29 +23,24 @@ class HttpNotifier():
         self._thng_id = thng_id
         self._http_headers = {'Content-Type': 'application/json', 'Authorization': api_key}
         self._rtc = RTC()
-
         self._wlan = WLAN(mode=WLAN.STA)
-        nets = self._wlan.scan()
 
-        print('WLAN: scanned networks: {}'.format([net.ssid for net in nets]))
+        print('WLAN: connecting to {}...'.format(config.wifi_config['ssid']))
+        self._wlan.connect(config.wifi_config['ssid'], auth=(
+            WLAN.WPA2, config.wifi_config['passphrase']), timeout=30000)
+        Timer.Alarm(self.connection_timer_handler, 35, periodic=False)
+        while not self._wlan.isconnected():
+            idle()  # save power while waiting
+        print('WLAN: connection to {} succeeded!'.format(config.wifi_config['ssid']))
+        print('ifconfig: {}'.format(self._wlan.ifconfig()))
 
-        for net in nets:
-            if net.ssid == config.wifi_config['ssid']:
-                print('WLAN: connecting to {}...'.format(net.ssid))
-                self._wlan.connect(config.wifi_config['ssid'], auth=(
-                    net.sec, config.wifi_config['passphrase']), timeout=30000)
-                Timer.Alarm(self.connection_timer_handler, 35, periodic=False)
-                while not self._wlan.isconnected():
-                    idle()  # save power while waiting
-                print('WLAN: connection to {} succeeded!'.format(config.wifi_config['ssid']))
-                print('ifconfig: {}'.format(self._wlan.ifconfig()))
-                self._send_props([{'key': 'in_use', 'value': False}])
+        # self._send_props([{'key': 'in_use', 'value': False}])
 
-                Timer.Alarm(self.sync_timer_handler, 30, periodic=False)
-                while not self._rtc.synced():
-                    self._rtc.ntp_sync('pool.ntp.org', update_period=3600)
-                    time.sleep(1)
-                print("time synced: {}".format(self._rtc.now()))
+        Timer.Alarm(self.sync_timer_handler, 30, periodic=False)
+        while not self._rtc.synced():
+            self._rtc.ntp_sync('pool.ntp.org', update_period=3600)
+            time.sleep(1)
+        print("time synced: {}".format(self._rtc.now()))
 
         # seems like we are still not connected,
         # setup wifi network does not exist ???
@@ -53,7 +48,6 @@ class HttpNotifier():
             print('failed to connect or specified network does not exist')
             time.sleep(20)
             reset()
-            # provision.enter_provisioning_mode()
 
     def _send(self, method, url, json):
         print('REQUEST: {}: {}'.format(method, json))

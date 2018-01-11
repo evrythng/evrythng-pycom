@@ -1,9 +1,12 @@
 import os
 import shutil
 import machine
+import led
 
 uart = machine.UART(0, 115200)
 os.dupterm(uart)
+
+led.off()
 
 try:
     # check if upgrade did not finish successfully

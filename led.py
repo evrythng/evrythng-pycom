@@ -53,6 +53,10 @@ def blink_red(period=0.5):
     blink(period, RGB_RED)
 
 
+def blink_green(period=0.5):
+    blink(period, RGB_GREEN)
+
+
 def green():
     solid(RGB_GREEN)
 
@@ -63,3 +67,7 @@ def red():
 
 def blue():
     solid(RGB_BLUE)
+
+
+def off():
+    solid(0)
