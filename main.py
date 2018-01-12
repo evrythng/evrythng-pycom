@@ -6,8 +6,8 @@ import ota_upgrade
 import time
 import led
 import pycoproc
-from pysense import Pysense
 
+from pysense import Pysense
 from notification_queue import NotificationQueue
 from accelerometer_sensor import VibrationSensor
 from ambient_sensor import AmbientSensor
@@ -15,7 +15,6 @@ from dispatcher import CloudDispatcher
 from http_notifier import HttpNotifier
 from reset import ResetButton
 from version import version
-
 
 provision.check_and_start_provisioning_mode()
 
@@ -56,6 +55,10 @@ reset_button = ResetButton('P14')
 
 wake_up_reason = pysense.get_wake_reason()
 
+if wake_up_reason == pycoproc.WAKE_REASON_PUSH_BUTTON:
+    led.blink_blue(period=0.3)
+    reset_button.check()
+
 notifier = HttpNotifier(config.cloud_config['thng_id'], config.cloud_config['api_key'])
 dispatcher = CloudDispatcher(queue, [notifier])
 
@@ -67,10 +70,6 @@ if wake_up_reason == pycoproc.WAKE_REASON_TIMER:
     queue.push_version(version)
     ambient = AmbientSensor(queue, pysense)
     ambient.push_sensor_values()
-
-elif wake_up_reason == pycoproc.WAKE_REASON_PUSH_BUTTON:
-    led.blink_blue(period=0.3)
-    reset_button.check()
 
 elif wake_up_reason == pycoproc.WAKE_REASON_ACCELEROMETER:
     led.blink_red(period=.3)
@@ -93,7 +92,5 @@ print('4')
 vibration_sensor.enable_activity_wakeup()
 print('5')
 
-'''
 pysense.setup_sleep(10)
 pysense.go_to_sleep()
-'''

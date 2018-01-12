@@ -13,7 +13,7 @@ class VibrationSensor:
         self._pysense = pys
         self._queue = queue
         self._t_v_release = const(3)
-        self._t_v_min = const(1)
+        self._t_v_min = const(.1)
         self._t_v_last = 0
         self._v_delta = .04
         self._v_detected = False
@@ -30,9 +30,9 @@ class VibrationSensor:
         self._running = False
 
     def enable_activity_wakeup(self):
-        self._pysense.setup_int_pin_wake_up(True)
+        # self._pysense.setup_int_pin_wake_up(False)
         self._pysense.setup_int_wake_up(True, False)
-        self._accel_sensor.enable_activity_interrupt(100, 200)  # mG, ms
+        self._accel_sensor.enable_activity_interrupt(50, 20)  # mG, ms
 
     def cycle(self):
         v_current = (x, y, z) = self._accel_sensor.acceleration()
