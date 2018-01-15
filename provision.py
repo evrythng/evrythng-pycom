@@ -4,7 +4,7 @@ import led
 import machine
 import usocket as socket
 import ujson as json
-from config import wifi_config_path
+from config import wifi_config_path, cloud_config_path, read_config
 from network import WLAN
 from machine import Timer
 
@@ -52,8 +52,8 @@ def reset_timer_handler(alarm):
     machine.reset()
 
 
-def save_wifi_config(config):
-    f = open(wifi_config_path, mode='w')
+def save_config(path, config):
+    f = open(path, mode='w')
     f.write(config)
     f.close()
 
@@ -67,7 +67,7 @@ def handle_provision_request(request, data):
         print('Failed to parse json [{}]: {}'.format(data, e))
         return bad_request()
 
-    save_wifi_config(data)
+    save_config(wifi_config_path, data)
 
     reset_sec = 5
     print('resetting board in {} sec'.format(reset_sec))
@@ -86,6 +86,27 @@ def handle_scan_request(request, data):
         s.add(net.ssid)
     json_str = json.dumps(list(s))
     return ok(content_type='application/json', content=json_str)
+
+
+def handle_evt_request(request, data):
+    if request == 'GET':
+        evt_config = dict()
+        try:
+            evt_config = read_config(cloud_config_path)
+        except Exception:
+            pass
+        return ok(content_type='application/json', content=json.dumps(evt_config))
+
+    elif request == 'POST':
+        try:
+            json.loads(data)
+        except ValueError as e:
+            print('Failed to parse json [{}]: {}'.format(data, e))
+            return bad_request()
+        save_config(cloud_config_path, data)
+        return ok()
+
+    return method_not_allowed()
 
 
 def handle_connectivity_request(request, data):
@@ -130,7 +151,8 @@ routes = {
     '/': handle_root_request,
     '/provision': handle_provision_request,
     '/scan': handle_scan_request,
-    '/connectivity': handle_connectivity_request
+    '/connectivity': handle_connectivity_request,
+    '/evt': handle_evt_request
 }
 
 
