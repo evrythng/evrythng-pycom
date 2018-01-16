@@ -23,8 +23,8 @@ class SigfoxNotifier():
                 pass
             elif n.type == NotificationQueue.VIBRATION_STOPPED:
                 print('sigfox vibration duration: {}'.format(n.data))
-                self._socket.send(n.data.to_bytes(8))
-            elif NotificationQueue.BATTERY_VOLTAGE:
+                self._socket.send(n.data.to_bytes(8, 'little'))
+            elif NotificationQueue.AMBIENT:
                 pass
             elif NotificationQueue.UPTIME:
                 pass

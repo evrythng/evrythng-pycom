@@ -31,13 +31,19 @@ from notification_queue import NotificationQueue
 from accelerometer_sensor import VibrationSensor
 from ambient_sensor import AmbientSensor
 from dispatcher import CloudDispatcher
-from http_notifier import HttpNotifier
 from version import version
 
 
 wdt = WDT(timeout=25000)  # enable it with a timeout of 25 seconds
 queue = NotificationQueue()
-notifier = HttpNotifier(config.cloud_config['thng_id'], config.cloud_config['api_key'])
+
+if config.wifi_config['type'].lower() == 'wifi':
+    from http_notifier import HttpNotifier
+    notifier = HttpNotifier(config.cloud_config['thng_id'], config.cloud_config['api_key'])
+elif config.wifi_config['type'].lower() == 'sigfox':
+    from sigfox_notifier import SigfoxNotifier
+    notifier = SigfoxNotifier()
+
 dispatcher = CloudDispatcher(queue, [notifier])
 ambient = AmbientSensor(queue, 90)
 uptimer = Timer.Chrono()

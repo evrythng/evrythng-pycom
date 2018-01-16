@@ -59,8 +59,17 @@ def save_config(path, config):
 
 
 def handle_provision_request(request, data):
+    if request == 'GET':
+        cfg = dict()
+        try:
+            cfg = read_config(wifi_config_path)
+        except Exception:
+            pass
+        return ok(content_type='application/json', content=json.dumps(cfg))
+
     if request != 'POST':
         return method_not_allowed()
+
     try:
         json.loads(data)
     except ValueError as e:

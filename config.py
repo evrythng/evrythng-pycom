@@ -17,8 +17,12 @@ cloud_config = {}
 
 
 def validate_configs():
-    if 'ssid' not in wifi_config or 'passphrase' not in wifi_config:
+    if 'type' not in wifi_config:
         raise InvalidWifiConfigException()
+
+    if wifi_config['type'].lower() == 'wifi':
+        if 'ssid' not in wifi_config or 'passphrase' not in wifi_config:
+            raise InvalidWifiConfigException()
 
     if 'thng_id' not in cloud_config or 'api_key' not in cloud_config:
         raise InvalidCloudConfigException()
