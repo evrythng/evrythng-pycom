@@ -20,14 +20,14 @@ There are two ways to upload python sources on a "fresh" device: using the Atom 
 
 ### Atom + Pymakr plugin
 
-* Follow [this](https://docs.pycom.io/chapter/pymakr/installation/atom.html) instruction to install Atom + Pymakr plugin and setup device communication
+* Follow [these](https://docs.pycom.io/chapter/pymakr/installation/atom.html) instruction to install Atom + Pymakr plugin and setup device communication
 * Pull the project from github and open it in Atom
 * Once the communication with the device established press "Upload" button on a Pymakr plugin panel.
 * Press Fipy button to restart
 
 ### FTP
 
-* Follow [this](https://docs.pycom.io/chapter/gettingstarted/programming/FTP.html) instructions to connect FileZilla to Fipy's internal ftp server
+* Follow [these](https://docs.pycom.io/chapter/gettingstarted/programming/FTP.html) instructions to connect FileZilla to Fipy's internal ftp server
 * Copy *.py* and *.html* files from project folder to */flash* directory on the device maintaining the directory structure
 * Press Fipy reset button to restart
 
@@ -89,5 +89,3 @@ There is an internal mechanism for upgrading the firmware (i.e. updating python 
 
 While the device is upgrading itself the LED blinks red.
 
-## Demo Documentation
-https://docs.google.com/document/d/1yxOJHeC2tDd06ut66XmhzxQ-GzqhM1e_P--p_pBHA24/edit#
