@@ -1,19 +1,18 @@
-# appliance-sensor
+# aevrythng-pycom-appliance-sensor
 
 ## Overview
 
-This is the source code for an appliance sensing prototype used in replenishment project. The device senses vibrations using an accelerometer. Data analysis and decision making is done in the cloud. 
+This is a project showing how to use EVRYTHNG and a FiPy Pycom IoT device as an appliance sensor detecting useful metrics about devices it is attached to (e.g., washing cycles, number of coffees, etc.). The device senses vibrations using an accelerometer. Data analysis and decision making is done in the cloud. 
 
 The hardware used for the prototype:
 * Main module: [FiPy](https://pycom.io/product/fipy/)
 * Extension (sensor) board: [Pysense](https://pycom.io/hardware/pysense-specs/)
 
+## Preparing the Pycom device
 
-## Pycom device preparations
+More information on Pycom devices can be found [here](https://docs.pycom.io/). You can find instructions how to work with and assemble the FiPy and Pysense hardware [here](https://docs.pycom.io/chapter/gettingstarted/connection/fipy.html).
 
-More informration on Pycom devices can be found [here](https://docs.pycom.io/). You can find instructions how to work with and assemble the FiPy and Pysense hardware [here](https://docs.pycom.io/chapter/gettingstarted/connection/fipy.html).
-
-Newly acquired devices might not contain the latest firmware from the manufacturer. As the usage of the latest firmware is highly recommended, please follow the official guides to [update FiPy](https://docs.pycom.io/chapter/gettingstarted/installation/firmwaretool.html) and [update Pysense](https://docs.pycom.io/chapter/pytrackpysense/installation/firmware.html).
+Newly acquired devices might not contain the latest firmware from the manufacturer. As the use of the latest firmware is highly recommended, please follow the official guides to [update FiPy](https://docs.pycom.io/chapter/gettingstarted/installation/firmwaretool.html) and [update Pysense](https://docs.pycom.io/chapter/pytrackpysense/installation/firmware.html).
 
 
 ## Uploading sources to a fresh device
@@ -102,7 +101,7 @@ It is a JSON array of arrays. Each array has a format of `[timestamp, x, y, z]`.
 
 ## Upgrade using the EVRYTHNG cloud
 
-There is an internal mechanism for upgrading the firmware (i.e. updating python sources) which is based on the [EVRYTHNG Files API](https://developers.evrythng.com/v3.0/reference#files). The device continuously checks for a new version by reading the last `_upgrade` action from the cloud, compares it the local firmware version and performs an update if there is a newer version available. 
+There is an internal mechanism for upgrading the firmware based on the [EVRYTHNG Files API](https://developers.evrythng.com/v3.0/reference#files). The device continuously checks for a new version by reading the last `_upgrade` action from the cloud, compares it the local firmware version and performs an update if there is a newer version available. 
 
 The `post-upgrade.py` script can be used to create an upgrade bundle and to post an `_upgrade` action in the cloud in automatic mode. Do not forget to bump the version in `version.py` before launching the script. Run the `post-upgrade.py` script with the `-h` flag for more details.
 
