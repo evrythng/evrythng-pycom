@@ -1,27 +1,27 @@
 # evrythng-pycom
 
-# Overview
+## Overview
 
 This is a project showing how to use EVRYTHNG to send data from a FiPy Pycom IoT device.
 Int this example the FiPy senses vibrations using an accelerometer and send this data to EVRYTHNG where it can be analysed to detect the type of appliance it is attached to. 
 
-# Prerequisites
+## Prerequisites
 
 The hardware used for the prototype:
 * Main module: [FiPy](https://pycom.io/product/fipy/)
 * Extension (sensor) board: [Pysense](https://pycom.io/hardware/pysense-specs/)
 
-## Preparing the Pycom device
+### Preparing the Pycom device
 
 More information on Pycom devices can be found [here](https://docs.pycom.io/). You can find instructions how to work with and assemble the FiPy and Pysense hardware [here](https://docs.pycom.io/chapter/gettingstarted/connection/fipy.html).
 
 Newly acquired devices might not contain the latest firmware from the manufacturer. As the use of the latest firmware is highly recommended, please follow the official guides to [update FiPy](https://docs.pycom.io/chapter/gettingstarted/installation/firmwaretool.html) and [update Pysense](https://docs.pycom.io/chapter/pytrackpysense/installation/firmware.html).
 
-## Uploading sources to a fresh device
+### Uploading sources to a fresh device
 
 There are two ways to upload python sources on a "fresh" device: using the Atom + Pymakr plugin or using FTP.
 
-### Atom + Pymakr plugin
+#### Atom + Pymakr plugin
 
 * Follow [these instructions](https://docs.pycom.io/chapter/pymakr/installation/atom.html) to install Atom + the Pymakr plugin, and setup device communication.
 * Clone/download the project from GitHub and open it in Atom.
@@ -29,14 +29,14 @@ There are two ways to upload python sources on a "fresh" device: using the Atom 
 * Press FiPy button to restart the device.
 
 
-### FTP
+#### FTP
 
 * Follow [these instructions](https://docs.pycom.io/chapter/gettingstarted/programming/FTP.html) to connect FileZilla to the FiPy's internal FTP server.
 * Copy all `.py` and `.html` files from the project folder to the `/flash` directory on the device, while making sure to  maintain the same directory structure.
 * Press the FiPy reset button to restart the device.
 
 
-# Provisioning
+## Provisioning
 
 Once the device is loaded with the latest source code and restarted, it is ready to be provisioned - i.e. receive cloud credentials and connect to a comminication network (WiFi/Sigfox/LoRa etc). As the internal web page is still in development the best way to do this is via the command line and `curl` utility:
 
@@ -58,7 +58,7 @@ curl -X POST 192.168.4.1/provision -d '{"type":"sigfox"}'
 > After this command the device will reboot and connect to sigfox network.
 
 
-## Other useful commands:
+### Other useful commands:
 
 * Get the EVRYTHNG cloud credentials:
 ```
@@ -83,7 +83,7 @@ curl -X GET 192.168.4.1/connectivity
 To put the device into provisioning mode press the button on the Pysense board for 3 seconds. The device will restart in provisioning mode, and the LED will start blinking blue.
 
 
-# Working with the sensor and interpreting results
+## Working with the sensor and interpreting results
 
 While in normal operation, the LED will be solid green and the device will continuously read accelerometer sensor values. The device will enter vibration mode if the following conditions are true:
 * The difference between the last reading and current reading of acceleration values on any axis is greater than a threshold of 0.04 (G).
@@ -100,7 +100,7 @@ While in vibration mode the device sends vibration magnitudes of all three accer
 It is a JSON array of arrays. Each array has a format of `[timestamp, x, y, z]`. The first array with timestamp `0` shows accelerometer readings before the first threshold exceedance was detected. The followings arrays have timestamps in fractions of a second since the vibration mode started. Only readings that exceed the threshold are recorded.
 
 
-# Upgrade using the EVRYTHNG cloud
+## Upgrade using the EVRYTHNG cloud
 
 There is an internal mechanism for upgrading the firmware based on the [EVRYTHNG Files API](https://developers.evrythng.com/v3.0/reference#files). The device continuously checks for a new version by reading the last `_upgrade` action from the cloud, compares it the local firmware version and performs an update if there is a newer version available. 
 
