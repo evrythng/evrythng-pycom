@@ -3,7 +3,7 @@
 ## Overview
 
 This is a project showing how to use EVRYTHNG to send data from a FiPy Pycom IoT device.
-Int this example the FiPy senses vibrations using an accelerometer and send this data to EVRYTHNG where it can be analysed to detect the type of appliance it is attached to. 
+In this example the FiPy sensor extension senses vibrations using an accelerometer and send this data to EVRYTHNG where it can be analysed to detect the type of appliance it is attached to. 
 
 ## Prerequisites
 
